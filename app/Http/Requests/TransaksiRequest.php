@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 // Aturan validasi formulir transaksi penjualan.
 //
@@ -19,7 +20,10 @@ class TransaksiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tanggal' => ['required', 'date', 'before_or_equal:today'],
+            // unique:tutup_buku,tanggal = tanggal ini TIDAK boleh ada di tabel tutup_buku.
+            // Jika hari itu sudah ditutup buku, transaksi baru pada tanggal itu ditolak,
+            // supaya rekap di tutup_buku tetap sama dengan transaksi yang tercatat.
+            'tanggal' => ['required', 'date', 'before_or_equal:today', Rule::unique('tutup_buku', 'tanggal')],
             'item' => ['required', 'array', 'min:1'],
             // distinct: menu yang sama tidak boleh muncul di dua baris.
             'item.*.menu_id' => ['required', 'integer', 'exists:menu,id', 'distinct'],
@@ -34,6 +38,7 @@ class TransaksiRequest extends FormRequest
             'tanggal.required' => 'Tanggal wajib diisi.',
             'tanggal.date' => 'Tanggal tidak valid.',
             'tanggal.before_or_equal' => 'Tanggal tidak boleh di masa depan.',
+            'tanggal.unique' => 'Tanggal ini sudah ditutup buku, transaksi tidak dapat dicatat.',
             'item.required' => 'Transaksi wajib berisi minimal satu item.',
             'item.min' => 'Transaksi wajib berisi minimal satu item.',
             'item.*.menu_id.required' => 'Pilih menu.',
