@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BahanBaku;
+use App\Services\DasborService;
+use Illuminate\Http\Request;
 
-// Halaman dasbor.
+// Halaman dasbor. Isinya berbeda untuk owner dan kasir.
+// Perhitungannya berada di DasborService.
 class DasborController extends Controller
 {
-    public function index()
+    public function index(Request $request, DasborService $dasbor)
     {
-        // Jumlah bahan baku yang stoknya kurang dari atau sama dengan stok minimum.
-        $jumlahStokMenipis = BahanBaku::stokMenipis()->count();
+        // Owner melihat laba, ringkasan bulanan, grafik, dan menu terlaris.
+        // Kasir hanya melihat data operasional hari ini; data laba tidak dihitung sama sekali.
+        $tampilkanLaba = $request->user()->bolehLihatLaba();
 
-        return view('dasbor', compact('jumlahStokMenipis'));
+        $data = $tampilkanLaba ? $dasbor->dataOwner() : $dasbor->dataKasir();
+
+        return view('dasbor', $data + ['tampilkanLaba' => $tampilkanLaba]);
     }
 }

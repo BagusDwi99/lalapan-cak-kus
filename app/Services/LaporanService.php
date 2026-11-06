@@ -3,11 +3,14 @@
 namespace App\Services;
 
 use App\Models\BahanBaku;
+use App\Models\BiayaOperasional;
+use App\Models\DetailTransaksi;
 use App\Models\Menu;
+use App\Models\Transaksi;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-// Menyusun laporan penjualan per menu dan laporan persediaan per bahan baku
-// untuk satu rentang tanggal.
+// Menyusun laporan: penjualan per menu, laba rugi bulanan, dan persediaan per bahan baku.
 class LaporanService
 {
     /**
@@ -56,6 +59,41 @@ class LaporanService
                 'laba' => array_sum(array_column($baris, 'laba')),
             ],
         ];
+    }
+
+    /**
+     * Laba rugi satu bulan. Dipakai halaman Laba Rugi dan dasbor.
+     *
+     *   Laba kotor  = total penjualan - total HPP
+     *   Laba bersih = laba kotor - total biaya operasional
+     *
+     * $bulan: tanggal mana saja di bulan itu, contoh 2026-11-01.
+     */
+    public function labaRugi(Carbon $bulan): array
+    {
+        // Tanggal awal dan akhir bulan, contoh: 2026-11-01 sampai 2026-11-30.
+        $awalBulan = $bulan->copy()->startOfMonth();
+        $rentang = [$awalBulan->toDateString(), $awalBulan->copy()->endOfMonth()->toDateString()];
+
+        // 1. Total penjualan: jumlah kolom total dari semua transaksi bulan ini.
+        $totalPenjualan = (float) Transaksi::whereBetween('tanggal', $rentang)->sum('total');
+
+        // 2. Total HPP: kolom hpp di detail_transaksi adalah HPP per porsi,
+        //    jadi dikalikan jumlah porsi dulu baru dijumlahkan.
+        $totalHpp = (float) DetailTransaksi::whereHas('transaksi', fn ($query) => $query->whereBetween('tanggal', $rentang))
+            ->sum(DB::raw('hpp * jumlah'));
+
+        // 3. Laba kotor.
+        $labaKotor = $totalPenjualan - $totalHpp;
+
+        // 4. Biaya operasional bulan ini (periode disimpan sebagai tanggal 1).
+        $daftarBiaya = BiayaOperasional::where('periode', $awalBulan->toDateString())->orderBy('nama')->get();
+        $totalBiaya = (float) $daftarBiaya->sum('jumlah');
+
+        // 5. Laba bersih.
+        $labaBersih = $labaKotor - $totalBiaya;
+
+        return compact('totalPenjualan', 'totalHpp', 'labaKotor', 'daftarBiaya', 'totalBiaya', 'labaBersih');
     }
 
     /**
