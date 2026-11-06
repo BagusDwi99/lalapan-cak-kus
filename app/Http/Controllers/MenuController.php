@@ -25,14 +25,20 @@ class MenuController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        // Perkiraan HPP dan laba hanya untuk owner, sama seperti di modul transaksi.
+        $tampilkanLaba = $request->user()->bolehLihatLaba();
+
         // Hitung perkiraan HPP (lewat service) dan laba kotor untuk setiap menu di halaman ini.
         // Nilainya hanya untuk ditampilkan, tidak disimpan ke basis data.
-        foreach ($daftarMenu as $menu) {
-            $menu->perkiraan_hpp = $movingAverage->hitungHppPerPorsi($menu);
-            $menu->perkiraan_laba = $menu->harga_jual - $menu->perkiraan_hpp;
+        // Untuk kasir tidak dihitung sama sekali, jadi angkanya tidak pernah sampai ke tampilan.
+        if ($tampilkanLaba) {
+            foreach ($daftarMenu as $menu) {
+                $menu->perkiraan_hpp = $movingAverage->hitungHppPerPorsi($menu);
+                $menu->perkiraan_laba = $menu->harga_jual - $menu->perkiraan_hpp;
+            }
         }
 
-        return view('menu.index', compact('daftarMenu', 'cari'));
+        return view('menu.index', compact('daftarMenu', 'cari', 'tampilkanLaba'));
     }
 
     // Formulir tambah menu.

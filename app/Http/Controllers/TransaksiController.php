@@ -21,7 +21,7 @@ class TransaksiController extends Controller
         ];
 
         // HPP dan laba kotor hanya untuk owner.
-        $tampilkanLaba = $this->bolehLihatLaba($request);
+        $tampilkanLaba = $request->user()->bolehLihatLaba();
 
         $daftarTransaksi = Transaksi::query()
             ->with('user')
@@ -67,15 +67,10 @@ class TransaksiController extends Controller
     public function show(Request $request, Transaksi $transaksi)
     {
         $transaksi->load(['user', 'detailTransaksi.menu']);
-        $tampilkanLaba = $this->bolehLihatLaba($request);
+        // HPP dan laba kotor hanya untuk owner. Kasir hanya melihat harga jual dan total.
+        // Pemeriksaan ini di server: untuk kasir, kolom HPP dan laba tidak dikirim sama sekali ke browser.
+        $tampilkanLaba = $request->user()->bolehLihatLaba();
 
         return view('transaksi.show', compact('transaksi', 'tampilkanLaba'));
-    }
-
-    // HPP dan laba kotor hanya boleh dilihat owner. Kasir hanya melihat harga jual dan total.
-    // Pemeriksaan ini di server: untuk kasir, kolom HPP dan laba tidak dikirim sama sekali ke browser.
-    private function bolehLihatLaba(Request $request): bool
-    {
-        return $request->user()->peran === 'owner';
     }
 }

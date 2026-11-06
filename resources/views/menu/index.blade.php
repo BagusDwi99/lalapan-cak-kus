@@ -24,8 +24,11 @@
                         <th>Nama Menu</th>
                         <th class="text-end">Harga Jual</th>
                         <th class="text-center">Jumlah Bahan</th>
-                        <th class="text-end">Perkiraan HPP</th>
-                        <th class="text-end">Perkiraan Laba Kotor / Porsi</th>
+                        {{-- Hanya owner. @if dijalankan di server, jadi untuk kasir kolom ini tidak ada di HTML --}}
+                        @if ($tampilkanLaba)
+                            <th class="text-end">Perkiraan HPP</th>
+                            <th class="text-end">Perkiraan Laba Kotor / Porsi</th>
+                        @endif
                         <th class="text-center" style="width: 150px;">Aksi</th>
                     </tr>
                 </thead>
@@ -35,11 +38,13 @@
                             <td>{{ $menu->nama }}</td>
                             <td class="text-end">{{ Number::currency($menu->harga_jual, in: 'IDR', locale: 'id') }}</td>
                             <td class="text-center">{{ $menu->bahanBaku->count() }} bahan</td>
-                            <td class="text-end">{{ Number::currency($menu->perkiraan_hpp, in: 'IDR', locale: 'id') }}</td>
-                            {{-- Laba negatif (rugi) ditampilkan merah --}}
-                            <td class="text-end {{ $menu->perkiraan_laba < 0 ? 'text-danger fw-semibold' : '' }}">
-                                {{ Number::currency($menu->perkiraan_laba, in: 'IDR', locale: 'id') }}
-                            </td>
+                            @if ($tampilkanLaba)
+                                <td class="text-end">{{ Number::currency($menu->perkiraan_hpp, in: 'IDR', locale: 'id') }}</td>
+                                {{-- Laba negatif (rugi) ditampilkan merah --}}
+                                <td class="text-end {{ $menu->perkiraan_laba < 0 ? 'text-danger fw-semibold' : '' }}">
+                                    {{ Number::currency($menu->perkiraan_laba, in: 'IDR', locale: 'id') }}
+                                </td>
+                            @endif
                             <td class="text-center">
                                 <a href="/menu/{{ $menu->id }}/edit" class="btn btn-sm btn-warning">Ubah</a>
                                 <form method="POST" action="/menu/{{ $menu->id }}" class="d-inline"
@@ -53,7 +58,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="{{ $tampilkanLaba ? 6 : 4 }}" class="text-center text-muted py-4">
                                 {{ $cari ? "Menu dengan nama \"{$cari}\" tidak ditemukan." : 'Belum ada data menu.' }}
                             </td>
                         </tr>
@@ -63,10 +68,12 @@
         </div>
     </div>
 
-    <p class="small text-muted mt-2 mb-0">
-        Perkiraan HPP = jumlah pemakaian tiap bahan &times; harga rata-rata bahan saat ini.
-        HPP sebenarnya dicatat saat transaksi penjualan terjadi.
-    </p>
+    @if ($tampilkanLaba)
+        <p class="small text-muted mt-2 mb-0">
+            Perkiraan HPP = jumlah pemakaian tiap bahan &times; harga rata-rata bahan saat ini.
+            HPP sebenarnya dicatat saat transaksi penjualan terjadi.
+        </p>
+    @endif
 
     <div class="mt-3">
         {{ $daftarMenu->links() }}

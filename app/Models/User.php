@@ -36,4 +36,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transaksi::class);
     }
+
+    // HPP dan laba (termasuk perkiraannya) hanya boleh dilihat owner.
+    // Dipakai di modul Transaksi dan Menu supaya aturannya sama di semua tempat.
+    public function bolehLihatLaba(): bool
+    {
+        return $this->peran === 'owner';
+    }
 }
