@@ -5,6 +5,7 @@ use App\Http\Controllers\BarangMasukController;
 use App\Http\Controllers\BiayaOperasionalController;
 use App\Http\Controllers\DasborController;
 use App\Http\Controllers\LabaRugiController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PrediksiController;
@@ -53,5 +54,8 @@ Route::middleware('auth')->group(function () {
         // Prediksi: GET menampilkan hasil, POST (tombol Hitung Prediksi) menghitung dan menyimpan.
         Route::get('/prediksi', [PrediksiController::class, 'index']);
         Route::post('/prediksi', [PrediksiController::class, 'store']);
+
+        // Laporan penjualan dan persediaan.
+        Route::get('/laporan', [LaporanController::class, 'index']);
     });
 });

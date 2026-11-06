@@ -8,19 +8,47 @@ use App\Models\DetailTransaksi;
 use App\Models\Menu;
 use App\Models\Transaksi;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
+use Random\Engine\Mt19937;
+use Random\Randomizer;
 
-// Mengisi rincian setiap nota, lalu menghitung HPP dan laba kotornya.
+// Simulasi operasional harian warung: belanja pagi (barang_masuk) dan penjualan
+// (detail_transaksi), lalu HPP dan laba kotor tiap item.
 //
-// Supaya HPP konsisten dengan harga beli, data diproses urut per tanggal,
-// seperti yang terjadi di warung sungguhan:
-//   1. Pagi hari: barang masuk dicatat -> stok bertambah, harga rata-rata dihitung ulang.
+// Belanja dan penjualan disimulasikan bersama karena warung belanja HARIAN:
+// jumlah yang dibeli pagi ini bergantung pada sisa stok kemarin, dan sisa stok
+// bergantung pada penjualan. Data diproses urut per tanggal:
+//   1. Pagi hari: belanja sampai stok mencapai batas belanja -> catat barang masuk,
+//      stok bertambah, harga rata-rata dihitung ulang.
 //   2. Siang hari: menu terjual -> HPP memakai harga rata-rata saat itu, stok berkurang.
 // Di akhir, stok dan harga rata-rata terakhir disimpan ke tabel bahan_baku.
 class DetailTransaksiSeeder extends Seeder
 {
+    // Pola belanja harian tiap bahan baku.
+    //   batas     = stok minimal setelah belanja pagi. Harus di atas pemakaian harian terbesar
+    //               supaya stok tidak pernah minus. Stok akhir kira-kira = batas - pemakaian hari terakhir.
+    //   kelipatan = satuan pembelian (misalnya daging dibeli per 0,5 kg).
+    //   harga     = harga beli dasar per satuan, naik-turun -5% s.d. +5% setiap belanja.
+    private const POLA_BELANJA = [
+        'Ayam Potong'   => ['batas' => 58,  'kelipatan' => 1,   'harga' => 9000],
+        'Lele'          => ['batas' => 42,  'kelipatan' => 1,   'harga' => 3500],
+        'Bebek'         => ['batas' => 15,  'kelipatan' => 1,   'harga' => 22000],
+        'Ikan Laut'     => ['batas' => 17,  'kelipatan' => 1,   'harga' => 18000],
+        'Daging Sapi'   => ['batas' => 3.1, 'kelipatan' => 0.5, 'harga' => 130000],
+        'Beras'         => ['batas' => 31,  'kelipatan' => 1,   'harga' => 13000],
+        'Minyak Goreng' => ['batas' => 10,  'kelipatan' => 1,   'harga' => 17000],
+        'Sayuran'       => ['batas' => 10,  'kelipatan' => 0.5, 'harga' => 12000],
+    ];
+
     public function run(): void
     {
+        // Angka acak penjualan dibuat tetap (seed 3) supaya data selalu sama.
         mt_srand(3);
+
+        // Angka acak harga beli memakai pembangkit TERPISAH (seed 1), supaya urutan
+        // angka acak penjualan di atas tidak terganggu oleh simulasi belanja.
+        $acakHarga = new Randomizer(new Mt19937(1));
+        $idBahan = BahanBaku::pluck('id', 'nama');
 
         // Rentang porsi terjual per hari untuk setiap menu.
         // Ayam Goreng diatur khusus di bawah supaya rata-ratanya sekitar 30.
@@ -46,21 +74,36 @@ class DetailTransaksiSeeder extends Seeder
         $semuaTanggal = Transaksi::orderBy('tanggal')->distinct()->pluck('tanggal');
 
         foreach ($semuaTanggal as $tanggal) {
-            // 1. Catat barang masuk hari ini.
-            foreach (BarangMasuk::whereDate('tanggal', $tanggal)->get() as $masuk) {
-                $id = $masuk->bahan_baku_id;
+            // 1. Belanja pagi: isi stok tiap bahan sampai mencapai batas belanja.
+            foreach (self::POLA_BELANJA as $namaBahan => $pola) {
+                $id = $idBahan[$namaBahan];
+
+                // Kekurangan terhadap batas (dibulatkan 3 angka seperti kolom stok).
+                $kurang = round($pola['batas'] - $kondisiBahan[$id]['stok'], 3);
+                if ($kurang <= 0) {
+                    continue; // stok masih cukup, tidak perlu belanja
+                }
+
+                // Dibeli dalam kelipatan satuan pembelian, dibulatkan ke atas.
+                $jumlah = ceil($kurang / $pola['kelipatan']) * $pola['kelipatan'];
+
+                // Harga beli naik-turun -5% s.d. +5%, dibulatkan ke ratusan.
+                $hargaBeli = round($pola['harga'] * (1 + $acakHarga->getInt(-5, 5) / 100), -2);
 
                 // Harga rata-rata dihitung ulang lewat method model BahanBaku.
                 // Model sementara (tidak disimpan) dibuat dari kondisi stok dan harga saat ini.
                 $bahanSaatIni = new BahanBaku($kondisiBahan[$id]);
-                $kondisiBahan[$id]['harga_rata_rata'] = $bahanSaatIni->hitungHargaRataRataBaru(
-                    $masuk->jumlah,
-                    $masuk->harga_beli
-                );
-                $kondisiBahan[$id]['stok'] += $masuk->jumlah;
+                $kondisiBahan[$id]['harga_rata_rata'] = $bahanSaatIni->hitungHargaRataRataBaru($jumlah, $hargaBeli);
+                $kondisiBahan[$id]['stok'] += $jumlah;
 
-                // Simpan "foto" harga rata-rata setelah barang masuk ini.
-                $masuk->update(['harga_rata_rata_setelah' => $kondisiBahan[$id]['harga_rata_rata']]);
+                BarangMasuk::create([
+                    'bahan_baku_id' => $id,
+                    'tanggal' => Carbon::parse($tanggal)->toDateString(),
+                    'jumlah' => $jumlah,
+                    'harga_beli' => $hargaBeli,
+                    // "Foto" harga rata-rata setelah barang masuk ini.
+                    'harga_rata_rata_setelah' => $kondisiBahan[$id]['harga_rata_rata'],
+                ]);
             }
 
             // 2. Hitung HPP per porsi tiap menu dengan harga rata-rata hari ini.

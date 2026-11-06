@@ -31,8 +31,8 @@
 @endphp
 
 <div class="d-flex min-vh-100">
-    {{-- Sidebar gelap di sebelah kiri --}}
-    <aside class="d-flex flex-column bg-dark text-white p-3 flex-shrink-0" style="width: 250px;">
+    {{-- Sidebar gelap di sebelah kiri. d-print-none: tidak ikut tercetak. --}}
+    <aside class="d-flex flex-column bg-dark text-white p-3 flex-shrink-0 d-print-none" style="width: 250px;">
         <a href="/dasbor" class="text-white text-decoration-none fs-5 fw-semibold mb-3">
             Lalapan Cak Kus
         </a>

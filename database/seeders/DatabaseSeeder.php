@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
 
     // Urutan pemanggilan penting: tabel induk diisi lebih dulu.
     // Tabel prediksi dan tutup_buku sengaja tidak diisi; keduanya diisi oleh sistem.
+    // barang_masuk diisi oleh DetailTransaksiSeeder (simulasi belanja harian bersama penjualan).
     public function run(): void
     {
         $this->call([
@@ -18,7 +19,6 @@ class DatabaseSeeder extends Seeder
             BahanBakuSeeder::class,
             MenuSeeder::class,
             MenuBahanBakuSeeder::class,
-            BarangMasukSeeder::class,
             TransaksiSeeder::class,
             DetailTransaksiSeeder::class,
             BiayaOperasionalSeeder::class,
