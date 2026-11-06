@@ -7,7 +7,6 @@ use App\Models\BarangMasuk;
 use App\Models\DetailTransaksi;
 use App\Models\Menu;
 use App\Models\Transaksi;
-use App\Services\MovingAverageService;
 use Illuminate\Database\Seeder;
 
 // Mengisi rincian setiap nota, lalu menghitung HPP dan laba kotornya.
@@ -22,8 +21,6 @@ class DetailTransaksiSeeder extends Seeder
     public function run(): void
     {
         mt_srand(3);
-
-        $service = new MovingAverageService();
 
         // Rentang porsi terjual per hari untuk setiap menu.
         // Ayam Goreng diatur khusus di bawah supaya rata-ratanya sekitar 30.
@@ -53,10 +50,10 @@ class DetailTransaksiSeeder extends Seeder
             foreach (BarangMasuk::whereDate('tanggal', $tanggal)->get() as $masuk) {
                 $id = $masuk->bahan_baku_id;
 
-                // Harga rata-rata dihitung ulang lewat MovingAverageService.
-                $kondisiBahan[$id]['harga_rata_rata'] = $service->hitungHargaRataRata(
-                    $kondisiBahan[$id]['stok'],
-                    $kondisiBahan[$id]['harga_rata_rata'],
+                // Harga rata-rata dihitung ulang lewat method model BahanBaku.
+                // Model sementara (tidak disimpan) dibuat dari kondisi stok dan harga saat ini.
+                $bahanSaatIni = new BahanBaku($kondisiBahan[$id]);
+                $kondisiBahan[$id]['harga_rata_rata'] = $bahanSaatIni->hitungHargaRataRataBaru(
                     $masuk->jumlah,
                     $masuk->harga_beli
                 );
@@ -67,14 +64,11 @@ class DetailTransaksiSeeder extends Seeder
             }
 
             // 2. Hitung HPP per porsi tiap menu dengan harga rata-rata hari ini.
-            //    HPP per porsi = jumlah tiap bahan di resep x harga rata-rata bahan itu.
+            //    Memakai method model Menu, dengan harga rata-rata hasil langkah 1.
+            $hargaHariIni = array_map(fn ($kondisi) => $kondisi['harga_rata_rata'], $kondisiBahan);
             $hppPerPorsi = [];
             foreach ($menu as $namaMenu => $m) {
-                $hpp = 0;
-                foreach ($m->bahanBaku as $bahan) {
-                    $hpp += $bahan->pivot->jumlah * $kondisiBahan[$bahan->id]['harga_rata_rata'];
-                }
-                $hppPerPorsi[$namaMenu] = round($hpp, 2);
+                $hppPerPorsi[$namaMenu] = $m->hitungHppPerPorsi($hargaHariIni);
             }
 
             // 3. Tentukan berapa porsi tiap menu terjual hari ini.

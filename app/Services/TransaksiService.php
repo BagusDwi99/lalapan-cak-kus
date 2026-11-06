@@ -12,11 +12,6 @@ use Illuminate\Validation\ValidationException;
 // Mengurus penyimpanan transaksi penjualan: cek stok, hitung HPP, simpan, kurangi stok.
 class TransaksiService
 {
-    // Laravel otomatis memberikan MovingAverageService saat TransaksiService dibuat.
-    public function __construct(private MovingAverageService $movingAverage)
-    {
-    }
-
     /**
      * Menyimpan satu transaksi penjualan beserta detailnya.
      *
@@ -73,7 +68,7 @@ class TransaksiService
 
             foreach ($daftarItem as $item) {
                 $menu = $daftarMenu[$item['menu_id']];
-                $hppPerPorsi = $this->movingAverage->hitungHppPerPorsi($menu, $hargaRataRata);
+                $hppPerPorsi = $menu->hitungHppPerPorsi($hargaRataRata);
 
                 $daftarDetail[] = [
                     'menu_id' => $menu->id,

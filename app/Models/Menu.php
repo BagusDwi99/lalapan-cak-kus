@@ -36,4 +36,31 @@ class Menu extends Model
     {
         return $this->hasMany(DetailTransaksi::class);
     }
+
+    /**
+     * Menghitung HPP satu porsi menu ini dari harga rata-rata bahan bakunya.
+     *
+     * Rumus:
+     *   HPP per porsi = jumlah (jumlah pemakaian tiap bahan x harga rata-rata bahan itu)
+     *
+     * Contoh Ayam Goreng: 1 potong ayam x 8.639,61 + 0,15 kg beras x 13.159,27 + ...
+     *
+     * $hargaRataRata (tidak wajib): daftar harga terbaru [bahan_baku_id => harga].
+     * Dipakai saat transaksi penjualan, yaitu harga yang dibaca sambil dikunci (lockForUpdate),
+     * supaya pasti harga paling baru. Jika tidak diisi, dipakai harga dari relasi bahanBaku.
+     */
+    public function hitungHppPerPorsi(?array $hargaRataRata = null): float
+    {
+        $hpp = 0;
+
+        foreach ($this->bahanBaku as $bahan) {
+            // Pakai harga terbaru jika diberikan, jika tidak pakai harga dari relasi.
+            $harga = $hargaRataRata[$bahan->id] ?? $bahan->harga_rata_rata;
+
+            // Jumlah pemakaian per porsi x harga rata-rata per satuan.
+            $hpp += $bahan->pivot->jumlah * $harga;
+        }
+
+        return round($hpp, 2);
+    }
 }

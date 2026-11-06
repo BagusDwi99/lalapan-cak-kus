@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MenuRequest;
 use App\Models\BahanBaku;
 use App\Models\Menu;
-use App\Services\MovingAverageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 class MenuController extends Controller
 {
     // Halaman daftar menu dengan perkiraan HPP dan laba kotor per porsi.
-    public function index(Request $request, MovingAverageService $movingAverage)
+    public function index(Request $request)
     {
         $cari = $request->query('cari');
 
@@ -28,12 +27,12 @@ class MenuController extends Controller
         // Perkiraan HPP dan laba hanya untuk owner, sama seperti di modul transaksi.
         $tampilkanLaba = $request->user()->bolehLihatLaba();
 
-        // Hitung perkiraan HPP (lewat service) dan laba kotor untuk setiap menu di halaman ini.
+        // Hitung perkiraan HPP (method model Menu) dan laba kotor untuk setiap menu di halaman ini.
         // Nilainya hanya untuk ditampilkan, tidak disimpan ke basis data.
         // Untuk kasir tidak dihitung sama sekali, jadi angkanya tidak pernah sampai ke tampilan.
         if ($tampilkanLaba) {
             foreach ($daftarMenu as $menu) {
-                $menu->perkiraan_hpp = $movingAverage->hitungHppPerPorsi($menu);
+                $menu->perkiraan_hpp = $menu->hitungHppPerPorsi();
                 $menu->perkiraan_laba = $menu->harga_jual - $menu->perkiraan_hpp;
             }
         }

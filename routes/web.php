@@ -7,6 +7,7 @@ use App\Http\Controllers\DasborController;
 use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\PrediksiController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\TutupBukuController;
 use Illuminate\Support\Facades\Route;
@@ -48,5 +49,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('biaya-operasional', BiayaOperasionalController::class)->except('show');
 
         Route::get('/laba-rugi', [LabaRugiController::class, 'index']);
+
+        // Prediksi: GET menampilkan hasil, POST (tombol Hitung Prediksi) menghitung dan menyimpan.
+        Route::get('/prediksi', [PrediksiController::class, 'index']);
+        Route::post('/prediksi', [PrediksiController::class, 'store']);
     });
 });
