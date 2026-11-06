@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\BahanBakuController;
 use App\Http\Controllers\BarangMasukController;
+use App\Http\Controllers\BiayaOperasionalController;
+use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\TransaksiController;
@@ -36,6 +38,9 @@ Route::middleware('auth')->group(function () {
 
     // Halaman khusus owner nanti ditaruh di grup ini.
     Route::middleware('peran:owner')->group(function () {
-        //
+        // Biaya operasional boleh diubah dan dihapus, jadi semua rute dipakai kecuali show.
+        Route::resource('biaya-operasional', BiayaOperasionalController::class)->except('show');
+
+        Route::get('/laba-rugi', [LabaRugiController::class, 'index']);
     });
 });

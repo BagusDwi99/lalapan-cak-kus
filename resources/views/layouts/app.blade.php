@@ -22,6 +22,7 @@
         ['judul' => 'Transaksi Penjualan',      'url' => '/transaksi',         'aktif' => 'transaksi*',         'owner' => false],
         ['judul' => 'Biaya Operasional',        'url' => '/biaya-operasional', 'aktif' => 'biaya-operasional*', 'owner' => true],
         ['judul' => 'Prediksi Kebutuhan Stok',  'url' => '/prediksi',          'aktif' => 'prediksi*',          'owner' => true],
+        ['judul' => 'Laba Rugi',                'url' => '/laba-rugi',         'aktif' => 'laba-rugi*',         'owner' => true],
         ['judul' => 'Laporan',                  'url' => '/laporan',           'aktif' => 'laporan*',           'owner' => true],
         ['judul' => 'Tutup Buku',               'url' => '/tutup-buku',        'aktif' => 'tutup-buku*',        'owner' => false],
     ];
