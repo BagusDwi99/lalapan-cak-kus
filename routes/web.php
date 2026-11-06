@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BahanBakuController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MenuController;
 use Illuminate\Support\Facades\Route;
 
 // Halaman login hanya untuk tamu (pengguna yang belum masuk).
@@ -23,6 +24,7 @@ Route::middleware('auth')->group(function () {
     // Resource membuat 6 rute sekaligus: index, create, store, edit, update, destroy.
     // Rute show (lihat detail) tidak dipakai.
     Route::resource('bahan-baku', BahanBakuController::class)->except('show');
+    Route::resource('menu', MenuController::class)->except('show');
 
     // Halaman khusus owner nanti ditaruh di grup ini.
     Route::middleware('peran:owner')->group(function () {

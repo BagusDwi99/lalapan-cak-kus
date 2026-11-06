@@ -17,6 +17,7 @@
     $daftarMenu = [
         ['judul' => 'Dasbor',                   'url' => '/dasbor',            'aktif' => 'dasbor*',            'owner' => false],
         ['judul' => 'Bahan Baku',               'url' => '/bahan-baku',        'aktif' => 'bahan-baku*',        'owner' => false],
+        ['judul' => 'Menu',                     'url' => '/menu',              'aktif' => 'menu*',              'owner' => false],
         ['judul' => 'Barang Masuk',             'url' => '/barang-masuk',      'aktif' => 'barang-masuk*',      'owner' => false],
         ['judul' => 'Transaksi Penjualan',      'url' => '/transaksi',         'aktif' => 'transaksi*',         'owner' => false],
         ['judul' => 'Biaya Operasional',        'url' => '/biaya-operasional', 'aktif' => 'biaya-operasional*', 'owner' => true],
