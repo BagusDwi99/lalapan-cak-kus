@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('judul') — Warung Lalapan Cak Kus</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    {{-- Bootstrap disimpan lokal di public/vendor/bootstrap, jadi tetap tampil tanpa internet.
+         asset() menghasilkan alamat lengkap ke folder public. --}}
+    <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 </head>
 <body class="bg-light">
 @php
@@ -71,5 +73,10 @@
         @yield('konten')
     </main>
 </div>
+
+{{-- JavaScript Bootstrap (versi bundle sudah termasuk Popper) untuk komponen
+     seperti dropdown, modal, dan alert yang bisa ditutup.
+     Ditaruh di akhir body supaya halaman tampil lebih dulu. --}}
+<script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>
