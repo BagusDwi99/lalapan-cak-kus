@@ -1,47 +1,52 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# Sistem Informasi Pencatatan Stok dan Laba — Warung Lalapan Cak Kus
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+Skripsi S1 Sistem Informasi, ITB STIKOM Bali.
+Objek penelitian: Warung Lalapan Cak Kus, Ketewel, Sukawati, Gianyar.
 
-## Prerequisites
+## Teknologi
+- PHP 8.4, Laravel, MySQL. Basis data bernama lalapan_cak_kus.
+- Arsitektur MVC. Tampilan memakai Blade.
+- TANPA Vue, React, Livewire, atau Inertia.
+- Nama tabel, kolom, rute, dan teks antarmuka dalam bahasa Indonesia.
+- Komentar kode dalam bahasa Indonesia.
 
-Verify that PHP and Composer are available:
+## Aturan yang tidak boleh dilanggar
+- Perhitungan Moving Average dan MAPE WAJIB berada di
+  app/Services/MovingAverageService.php dan dipanggil dari controller.
+  Jangan menaruh rumus di controller, model, atau Blade.
+- Jangan menambah tabel di luar sepuluh tabel di bawah.
+- Jangan menambah fitur yang tidak diminta.
+- Buat kode sesederhana mungkin. Ini skripsi S1, bukan aplikasi produksi.
+- Jelaskan setiap kode yang dibuat dengan bahasa yang mudah dipahami.
 
-```sh
-php -v
-composer -V
-```
+## Sepuluh tabel
+1. users — owner dan admin/kasir, ada kolom peran
+2. bahan_baku — nama, satuan, stok, stok_minimum, harga_rata_rata
+3. menu — nama, harga_jual
+4. menu_bahan_baku — pivot menu dan bahan baku, jumlah pemakaian per porsi
+5. barang_masuk — bahan_baku_id, tanggal, jumlah, harga_beli
+6. transaksi — tanggal, total, user_id
+7. detail_transaksi — transaksi_id, menu_id, jumlah, harga_jual, hpp, laba_kotor
+8. biaya_operasional — nama, jumlah, periode
+9. prediksi — bahan_baku_id, tanggal, periode_n, metode (SMA/WMA),
+   nilai_prediksi, nilai_aktual, ape
+10. tutup_buku — tanggal, total_penjualan, total_laba
 
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
+## Metode Moving Average punya dua peran
+1. Peramalan kebutuhan bahan baku.
+   Dua varian dihitung bersamaan dari data masukan yang sama:
+   - SMA: rata-rata n periode terakhir, semua periode berbobot sama
+   - WMA: bobot 0,5 / 0,3 / 0,2, terbesar pada data paling baru
+   Akurasi diukur dengan MAPE. Varian dengan MAPE terkecil direkomendasikan,
+   dan penetapannya dilakukan per bahan baku.
+2. Moving average cost method untuk harga pokok penjualan.
+   Harga rata-rata dihitung ulang SAAT PENCATATAN BARANG MASUK bila harga
+   belinya berbeda, bukan saat penjualan terjadi.
 
-macOS:
+## Alur laba
+laba kotor = harga jual - HPP, dihitung per item pada detail_transaksi
+laba bersih = laba kotor - biaya operasional, dihitung per periode bulanan
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
-```
-
-Windows PowerShell:
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
-```
-
-Linux:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
-```
-
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
-
-## Agent Setup
-
-Install Laravel Boost from the application root before making application changes:
-
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
-
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+## Sumber data prediksi
+Pemakaian bahan baku harian TIDAK diinput manual. Diturunkan dari
+transaksi -> detail_transaksi -> menu_bahan_baku.
