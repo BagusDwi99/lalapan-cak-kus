@@ -44,13 +44,18 @@ class MovingAverageService
      * Contoh Ayam Goreng: 1 potong ayam x 8.639,61 + 0,15 kg beras x 13.159,27 + ...
      *
      * $menu harus punya relasi bahanBaku (beserta pivot jumlah).
+     *
+     * $hargaRataRata (tidak wajib): daftar harga terbaru [bahan_baku_id => harga].
+     * Dipakai saat transaksi penjualan, yaitu harga yang dibaca sambil dikunci (lockForUpdate),
+     * supaya pasti harga paling baru. Jika tidak diisi, dipakai harga dari relasi menu.
      */
-    public function hitungHppPerPorsi(Menu $menu): float
+    public function hitungHppPerPorsi(Menu $menu, ?array $hargaRataRata = null): float
     {
         $hpp = 0;
 
         foreach ($menu->bahanBaku as $bahan) {
-            $hpp += $bahan->pivot->jumlah * $bahan->harga_rata_rata;
+            $harga = $hargaRataRata[$bahan->id] ?? $bahan->harga_rata_rata;
+            $hpp += $bahan->pivot->jumlah * $harga;
         }
 
         return round($hpp, 2);

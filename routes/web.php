@@ -4,6 +4,7 @@ use App\Http\Controllers\BahanBakuController;
 use App\Http\Controllers\BarangMasukController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\TransaksiController;
 use Illuminate\Support\Facades\Route;
 
 // Halaman login hanya untuk tamu (pengguna yang belum masuk).
@@ -29,6 +30,9 @@ Route::middleware('auth')->group(function () {
 
     // Barang masuk hanya bisa dilihat dan ditambah, tidak bisa diubah atau dihapus.
     Route::resource('barang-masuk', BarangMasukController::class)->only(['index', 'create', 'store']);
+
+    // Transaksi hanya bisa dilihat, dilihat detailnya, dan ditambah. Tidak bisa diubah atau dihapus.
+    Route::resource('transaksi', TransaksiController::class)->only(['index', 'create', 'store', 'show']);
 
     // Halaman khusus owner nanti ditaruh di grup ini.
     Route::middleware('peran:owner')->group(function () {
