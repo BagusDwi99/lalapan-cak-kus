@@ -24,17 +24,15 @@ class MovingAverageService
         float $jumlahMasuk,
         float $hargaBeli
     ): float {
-        $totalStok = $stokLama + $jumlahMasuk;
-
-        // Jika stok masih kosong, harga rata-rata sama dengan harga beli.
-        if ($totalStok <= 0) {
+        // Jika stok lama kosong, harga rata-rata baru sama dengan harga beli.
+        if ($stokLama <= 0) {
             return round($hargaBeli, 2);
         }
 
         $nilaiStokLama = $stokLama * $hargaRataRataLama;
         $nilaiBarangMasuk = $jumlahMasuk * $hargaBeli;
 
-        return round(($nilaiStokLama + $nilaiBarangMasuk) / $totalStok, 2);
+        return round(($nilaiStokLama + $nilaiBarangMasuk) / ($stokLama + $jumlahMasuk), 2);
     }
 
     /**

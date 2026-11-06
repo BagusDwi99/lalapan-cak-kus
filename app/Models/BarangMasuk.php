@@ -15,6 +15,7 @@ class BarangMasuk extends Model
         'tanggal',
         'jumlah',
         'harga_beli',
+        'harga_rata_rata_setelah',
     ];
 
     // 'date' membuat tanggal terbaca sebagai objek tanggal (Carbon),
@@ -23,6 +24,8 @@ class BarangMasuk extends Model
         'tanggal' => 'date',
         'jumlah' => 'decimal:3',
         'harga_beli' => 'decimal:2',
+        // Harga rata-rata bahan baku tepat setelah barang masuk ini dicatat.
+        'harga_rata_rata_setelah' => 'decimal:2',
     ];
 
     // Catatan barang masuk ini milik satu bahan baku.

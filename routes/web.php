@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BahanBakuController;
+use App\Http\Controllers\BarangMasukController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MenuController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +26,9 @@ Route::middleware('auth')->group(function () {
     // Rute show (lihat detail) tidak dipakai.
     Route::resource('bahan-baku', BahanBakuController::class)->except('show');
     Route::resource('menu', MenuController::class)->except('show');
+
+    // Barang masuk hanya bisa dilihat dan ditambah, tidak bisa diubah atau dihapus.
+    Route::resource('barang-masuk', BarangMasukController::class)->only(['index', 'create', 'store']);
 
     // Halaman khusus owner nanti ditaruh di grup ini.
     Route::middleware('peran:owner')->group(function () {

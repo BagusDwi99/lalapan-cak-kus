@@ -61,6 +61,9 @@ class DetailTransaksiSeeder extends Seeder
                     $masuk->harga_beli
                 );
                 $kondisiBahan[$id]['stok'] += $masuk->jumlah;
+
+                // Simpan "foto" harga rata-rata setelah barang masuk ini.
+                $masuk->update(['harga_rata_rata_setelah' => $kondisiBahan[$id]['harga_rata_rata']]);
             }
 
             // 2. Hitung HPP per porsi tiap menu dengan harga rata-rata hari ini.

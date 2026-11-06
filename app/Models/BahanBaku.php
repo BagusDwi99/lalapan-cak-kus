@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\MovingAverageService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -28,6 +29,20 @@ class BahanBaku extends Model
         'stok_minimum' => 'decimal:3',
         'harga_rata_rata' => 'decimal:2',
     ];
+
+    // Menghitung harga rata-rata baru jika bahan ini menerima barang masuk.
+    // Rumusnya sendiri berada di MovingAverageService (aturan proyek: semua rumus
+    // Moving Average di satu tempat). Method ini memberikan stok dan harga rata-rata
+    // milik bahan ini ke service tersebut.
+    public function hitungHargaRataRataBaru(float $jumlahMasuk, float $hargaBeli): float
+    {
+        return app(MovingAverageService::class)->hitungHargaRataRata(
+            $this->stok,
+            $this->harga_rata_rata,
+            $jumlahMasuk,
+            $hargaBeli
+        );
+    }
 
     // Satu bahan baku dipakai di banyak menu (lewat tabel resep menu_bahan_baku).
     public function menu(): BelongsToMany
