@@ -9,6 +9,8 @@ Objek penelitian: Warung Lalapan Cak Kus, Ketewel, Sukawati, Gianyar.
 - TANPA Vue, React, Livewire, atau Inertia.
 - Nama tabel, kolom, rute, dan teks antarmuka dalam bahasa Indonesia.
 - Komentar kode dalam bahasa Indonesia.
+- Tampilan memakai Bootstrap 5 lewat CDN. TANPA npm, Vite, atau Tailwind.
+- Autentikasi ditulis manual memakai Auth facade, bukan Breeze atau Jetstream.
 
 ## Aturan yang tidak boleh dilanggar
 - Perhitungan Moving Average dan MAPE WAJIB berada di

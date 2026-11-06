@@ -12,7 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Nama pendek 'peran' untuk middleware CekPeran.
+        $middleware->alias([
+            'peran' => \App\Http\Middleware\CekPeran::class,
+        ]);
+
+        // Tamu yang membuka halaman berlogin diarahkan ke /login,
+        // pengguna yang sudah login dan membuka /login diarahkan ke /dasbor.
+        $middleware->redirectGuestsTo('/login');
+        $middleware->redirectUsersTo('/dasbor');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
