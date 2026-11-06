@@ -3,10 +3,12 @@
 use App\Http\Controllers\BahanBakuController;
 use App\Http\Controllers\BarangMasukController;
 use App\Http\Controllers\BiayaOperasionalController;
+use App\Http\Controllers\DasborController;
 use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\TutupBukuController;
 use Illuminate\Support\Facades\Route;
 
 // Halaman login hanya untuk tamu (pengguna yang belum masuk).
@@ -23,7 +25,7 @@ Route::middleware('auth')->group(function () {
     // Alamat utama langsung diarahkan ke dasbor.
     Route::redirect('/', '/dasbor');
 
-    Route::view('/dasbor', 'dasbor')->name('dasbor');
+    Route::get('/dasbor', [DasborController::class, 'index'])->name('dasbor');
 
     // Resource membuat 6 rute sekaligus: index, create, store, edit, update, destroy.
     // Rute show (lihat detail) tidak dipakai.
@@ -36,7 +38,11 @@ Route::middleware('auth')->group(function () {
     // Transaksi hanya bisa dilihat, dilihat detailnya, dan ditambah. Tidak bisa diubah atau dihapus.
     Route::resource('transaksi', TransaksiController::class)->only(['index', 'create', 'store', 'show']);
 
-    // Halaman khusus owner nanti ditaruh di grup ini.
+    // Tutup buku harian, bisa diakses kasir dan owner.
+    Route::get('/tutup-buku', [TutupBukuController::class, 'index']);
+    Route::post('/tutup-buku', [TutupBukuController::class, 'store']);
+
+    // Halaman khusus owner ditaruh di grup ini.
     Route::middleware('peran:owner')->group(function () {
         // Biaya operasional boleh diubah dan dihapus, jadi semua rute dipakai kecuali show.
         Route::resource('biaya-operasional', BiayaOperasionalController::class)->except('show');

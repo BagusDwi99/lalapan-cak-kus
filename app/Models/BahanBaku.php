@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\MovingAverageService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -29,6 +30,14 @@ class BahanBaku extends Model
         'stok_minimum' => 'decimal:3',
         'harga_rata_rata' => 'decimal:2',
     ];
+
+    // Scope: hanya bahan baku yang stoknya kurang dari atau sama dengan stok minimum.
+    // Cara pakai: BahanBaku::stokMenipis()->get() atau BahanBaku::stokMenipis()->count()
+    public function scopeStokMenipis(Builder $query): void
+    {
+        // whereColumn membandingkan dua kolom di baris yang sama.
+        $query->whereColumn('stok', '<=', 'stok_minimum');
+    }
 
     // Menghitung harga rata-rata baru jika bahan ini menerima barang masuk.
     // Rumusnya sendiri berada di MovingAverageService (aturan proyek: semua rumus

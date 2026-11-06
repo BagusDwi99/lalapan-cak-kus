@@ -65,7 +65,9 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // Zona waktu WITA (Bali, UTC+8), sesuai lokasi Warung Lalapan Cak Kus di Gianyar.
+    // Penting untuk "hari ini" pada tutup buku dan tanggal bawaan transaksi.
+    'timezone' => 'Asia/Makassar',
 
     /*
     |--------------------------------------------------------------------------
