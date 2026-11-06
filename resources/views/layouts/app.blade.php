@@ -70,6 +70,21 @@
 
     {{-- Isi halaman --}}
     <main class="flex-grow-1 p-4">
+        {{-- Pesan berhasil atau gagal dari controller, contoh: ->with('berhasil', '...').
+             Berlaku untuk semua halaman. alert-dismissible + tombol close = bisa ditutup. --}}
+        @if (session('berhasil'))
+            <div class="alert alert-success alert-dismissible fade show">
+                {{ session('berhasil') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+            </div>
+        @endif
+        @if (session('gagal'))
+            <div class="alert alert-danger alert-dismissible fade show">
+                {{ session('gagal') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+            </div>
+        @endif
+
         @yield('konten')
     </main>
 </div>

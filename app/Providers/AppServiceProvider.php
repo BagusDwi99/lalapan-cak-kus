@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Tombol pagination memakai gaya Bootstrap 5
+        // (tampilannya di resources/views/vendor/pagination/bootstrap-5.blade.php).
+        Paginator::useBootstrapFive();
     }
 }

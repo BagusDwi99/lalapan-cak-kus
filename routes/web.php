@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BahanBakuController;
 use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,10 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/', '/dasbor');
 
     Route::view('/dasbor', 'dasbor')->name('dasbor');
+
+    // Resource membuat 6 rute sekaligus: index, create, store, edit, update, destroy.
+    // Rute show (lihat detail) tidak dipakai.
+    Route::resource('bahan-baku', BahanBakuController::class)->except('show');
 
     // Halaman khusus owner nanti ditaruh di grup ini.
     Route::middleware('peran:owner')->group(function () {
