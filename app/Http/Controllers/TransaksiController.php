@@ -20,12 +20,16 @@ class TransaksiController extends Controller
             'sampai' => $request->query('sampai'),
         ];
 
+        // HPP dan laba kotor hanya untuk owner.
+        $tampilkanLaba = $this->bolehLihatLaba($request);
+
         $daftarTransaksi = Transaksi::query()
             ->with('user')
             // withSum: jumlahkan kolom di detail_transaksi untuk setiap transaksi.
             // Hasilnya tersedia sebagai $transaksi->jumlah_porsi dan $transaksi->total_laba.
             ->withSum('detailTransaksi as jumlah_porsi', 'jumlah')
-            ->withSum('detailTransaksi as total_laba', 'laba_kotor')
+            // Total laba hanya diambil dari basis data jika pengguna boleh melihatnya.
+            ->when($tampilkanLaba, fn ($query) => $query->withSum('detailTransaksi as total_laba', 'laba_kotor'))
             ->when($filter['dari'], fn ($query, $tanggal) => $query->whereDate('tanggal', '>=', $tanggal))
             ->when($filter['sampai'], fn ($query, $tanggal) => $query->whereDate('tanggal', '<=', $tanggal))
             ->orderByDesc('tanggal')
@@ -33,7 +37,7 @@ class TransaksiController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('transaksi.index', compact('daftarTransaksi', 'filter'));
+        return view('transaksi.index', compact('daftarTransaksi', 'filter', 'tampilkanLaba'));
     }
 
     // Formulir transaksi baru.
@@ -60,10 +64,18 @@ class TransaksiController extends Controller
     }
 
     // Halaman detail satu transaksi.
-    public function show(Transaksi $transaksi)
+    public function show(Request $request, Transaksi $transaksi)
     {
         $transaksi->load(['user', 'detailTransaksi.menu']);
+        $tampilkanLaba = $this->bolehLihatLaba($request);
 
-        return view('transaksi.show', compact('transaksi'));
+        return view('transaksi.show', compact('transaksi', 'tampilkanLaba'));
+    }
+
+    // HPP dan laba kotor hanya boleh dilihat owner. Kasir hanya melihat harga jual dan total.
+    // Pemeriksaan ini di server: untuk kasir, kolom HPP dan laba tidak dikirim sama sekali ke browser.
+    private function bolehLihatLaba(Request $request): bool
+    {
+        return $request->user()->peran === 'owner';
     }
 }

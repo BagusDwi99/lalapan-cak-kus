@@ -24,8 +24,11 @@
                         <th class="text-end">Jumlah Porsi</th>
                         <th class="text-end">Harga Jual</th>
                         <th class="text-end">Subtotal</th>
-                        <th class="text-end">HPP / Porsi</th>
-                        <th class="text-end">Laba Kotor</th>
+                        {{-- Hanya owner. @if dijalankan di server, jadi untuk kasir kolom ini tidak ada di HTML --}}
+                        @if ($tampilkanLaba)
+                            <th class="text-end">HPP / Porsi</th>
+                            <th class="text-end">Laba Kotor</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -36,8 +39,10 @@
                             <td class="text-end">{{ Number::currency($detail->harga_jual, in: 'IDR', locale: 'id') }}</td>
                             {{-- Subtotal = harga jual x jumlah porsi --}}
                             <td class="text-end">{{ Number::currency($detail->harga_jual * $detail->jumlah, in: 'IDR', locale: 'id') }}</td>
-                            <td class="text-end">{{ Number::currency($detail->hpp, in: 'IDR', locale: 'id') }}</td>
-                            <td class="text-end">{{ Number::currency($detail->laba_kotor, in: 'IDR', locale: 'id') }}</td>
+                            @if ($tampilkanLaba)
+                                <td class="text-end">{{ Number::currency($detail->hpp, in: 'IDR', locale: 'id') }}</td>
+                                <td class="text-end">{{ Number::currency($detail->laba_kotor, in: 'IDR', locale: 'id') }}</td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>
@@ -47,8 +52,10 @@
                         <td class="text-end">{{ $transaksi->detailTransaksi->sum('jumlah') }}</td>
                         <td></td>
                         <td class="text-end">{{ Number::currency($transaksi->total, in: 'IDR', locale: 'id') }}</td>
-                        <td></td>
-                        <td class="text-end">{{ Number::currency($transaksi->detailTransaksi->sum('laba_kotor'), in: 'IDR', locale: 'id') }}</td>
+                        @if ($tampilkanLaba)
+                            <td></td>
+                            <td class="text-end">{{ Number::currency($transaksi->detailTransaksi->sum('laba_kotor'), in: 'IDR', locale: 'id') }}</td>
+                        @endif
                     </tr>
                 </tfoot>
             </table>

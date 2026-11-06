@@ -10,7 +10,7 @@
 
     <div class="alert alert-info">
         <strong>Catatan:</strong> transaksi penjualan tidak bisa diubah atau dihapus.
-        Setiap transaksi sudah mengurangi stok bahan baku dan mencatat HPP sesuai harga rata-rata saat itu.
+        Setiap transaksi sudah mengurangi stok bahan baku.
     </div>
 
     <form method="GET" action="/transaksi" class="row g-2 align-items-end mb-3">
@@ -38,7 +38,10 @@
                         <th>Tanggal</th>
                         <th class="text-end">Jumlah Item</th>
                         <th class="text-end">Total Penjualan</th>
-                        <th class="text-end">Total Laba Kotor</th>
+                        {{-- @if di Blade dijalankan di server: untuk kasir kolom ini tidak ada di HTML --}}
+                        @if ($tampilkanLaba)
+                            <th class="text-end">Total Laba Kotor</th>
+                        @endif
                         <th>Kasir</th>
                         <th class="text-center" style="width: 100px;">Aksi</th>
                     </tr>
@@ -49,7 +52,9 @@
                             <td>{{ $transaksi->tanggal->format('d/m/Y') }}</td>
                             <td class="text-end">{{ $transaksi->jumlah_porsi }} porsi</td>
                             <td class="text-end">{{ Number::currency($transaksi->total, in: 'IDR', locale: 'id') }}</td>
-                            <td class="text-end">{{ Number::currency($transaksi->total_laba, in: 'IDR', locale: 'id') }}</td>
+                            @if ($tampilkanLaba)
+                                <td class="text-end">{{ Number::currency($transaksi->total_laba, in: 'IDR', locale: 'id') }}</td>
+                            @endif
                             <td>{{ $transaksi->user->name }}</td>
                             <td class="text-center">
                                 <a href="/transaksi/{{ $transaksi->id }}" class="btn btn-sm btn-outline-primary">Detail</a>
@@ -57,7 +62,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="{{ $tampilkanLaba ? 6 : 5 }}" class="text-center text-muted py-4">
                                 {{ array_filter($filter) ? 'Tidak ada transaksi pada rentang tanggal ini.' : 'Belum ada transaksi.' }}
                             </td>
                         </tr>
