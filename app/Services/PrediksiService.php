@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\BahanBaku;
 use App\Models\Prediksi;
-use App\Models\Transaksi;
 use App\Models\TutupBuku;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -39,22 +38,17 @@ class PrediksiService
         $akhir = TutupBuku::whereDate('tanggal', today())->exists() ? today() : today()->subDay();
         $awal = $akhir->copy()->subDays(self::JUMLAH_HARI - 1);
 
-        // Hari sebelum transaksi pertama di sistem bukan "pemakaian nol",
-        // melainkan "sistem belum dipakai", jadi tidak ikut dihitung.
-        $transaksiPertama = Transaksi::min('tanggal');
-        if ($transaksiPertama !== null && Carbon::parse($transaksiPertama)->gt($awal)) {
-            $awal = Carbon::parse($transaksiPertama);
-        }
-
         // 2. Ambil pemakaian harian dari transaksi penjualan.
-        $pemakaian = $transaksiPertama === null
-            ? []
-            : BahanBaku::getPemakaianHarian($bahan->id, $awal, $akhir);
+        //    Hanya tanggal yang ada transaksinya yang masuk deret. Tanggal tanpa transaksi
+        //    (warung tutup, belum dicatat, atau sebelum sistem dipakai) dilewati, sehingga
+        //    jendela 3 hari selalu memakai 3 hari berurutan yang datanya tersedia.
+        $pemakaian = BahanBaku::getPemakaianHarian($bahan->id, $awal, $akhir);
 
         $tanggalTarget = $akhir->copy()->addDay();
 
         $hasil = [
             'bahan' => $bahan,
+            'tanggalAwal' => $awal,
             'jumlahHari' => count($pemakaian),
             // Minimal 4 hari: 3 hari untuk jendela + 1 hari pembanding untuk MAPE.
             'minimalHari' => self::PERIODE_N + 1,
@@ -134,6 +128,8 @@ class PrediksiService
      * Menyimpan hasil ke tabel prediksi: satu baris per varian per tanggal,
      * termasuk prediksi periode berikutnya (nilai aktual dan APE masih kosong).
      * Jika tombol ditekan lagi, baris yang sama diperbarui, bukan digandakan.
+     * Baris lama di rentang yang sama untuk tanggal yang tidak lagi ada di deret
+     * (misalnya tanggal tanpa transaksi yang dulu tersimpan sebagai pemakaian 0) dihapus.
      * Mengembalikan jumlah baris yang disimpan.
      */
     public function simpan(array $hasil): int
@@ -142,6 +138,17 @@ class PrediksiService
         $jumlah = 0;
 
         DB::transaction(function () use ($hasil, $bahanId, &$jumlah) {
+            // Tanggal yang sah untuk rentang ini: tanggal di deret prediksi + tanggal target.
+            $tanggalSah = array_column($hasil['baris'], 'tanggal');
+            $tanggalSah[] = $hasil['tanggalTarget']->toDateString();
+
+            // Hapus baris lama di rentang ini yang tanggalnya tidak lagi ada di deret.
+            Prediksi::where('bahan_baku_id', $bahanId)
+                ->where('periode_n', self::PERIODE_N)
+                ->whereBetween('tanggal', [$hasil['tanggalAwal']->toDateString(), $hasil['tanggalTarget']->toDateString()])
+                ->whereNotIn('tanggal', $tanggalSah)
+                ->delete();
+
             foreach ($hasil['baris'] as $b) {
                 $this->simpanSatu($bahanId, $b['tanggal'], 'SMA', $b['sma'], $b['aktual'], $b['apeSma']);
                 $this->simpanSatu($bahanId, $b['tanggal'], 'WMA', $b['wma'], $b['aktual'], $b['apeWma']);

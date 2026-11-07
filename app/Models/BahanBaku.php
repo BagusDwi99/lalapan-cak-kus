@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Carbon\CarbonPeriod;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -50,7 +49,12 @@ class BahanBaku extends Model
      *
      * Hasil: array [tanggal => pemakaian], urut dari tanggal terlama ke terbaru,
      * contoh ['2026-10-07' => 34.5, '2026-10-08' => 33, ...].
-     * Hari tanpa pemakaian tetap muncul dengan nilai 0, supaya deret harinya tidak bolong.
+     *
+     * Dua keadaan dibedakan:
+     *   - Tanggal yang ADA transaksi, tetapi tidak ada menu berbahan ini yang terjual
+     *     -> muncul dengan nilai 0, karena memang pemakaiannya nol.
+     *   - Tanggal yang TIDAK ADA transaksi sama sekali (warung tutup atau belum dicatat)
+     *     -> tidak dimasukkan ke deret, karena tidak ada data, bukan pemakaian nol.
      */
     public static function getPemakaianHarian(int $bahanBakuId, $tanggalAwal, $tanggalAkhir): array
     {
@@ -63,23 +67,29 @@ class BahanBaku extends Model
             return [];
         }
 
-        // SATU query untuk seluruh rentang: hanya mengembalikan tanggal yang ada pemakaiannya.
-        // Hasilnya contoh: ['2026-10-07' => '34.500', '2026-10-08' => '33.000', ...]
+        // SATU query untuk seluruh rentang, berangkat dari tabel transaksi:
+        // setiap tanggal yang punya transaksi pasti muncul tepat satu kali.
+        //
+        // LEFT JOIN (bukan JOIN) dan syarat bahan baku diletakkan DI DALAM join,
+        // bukan di WHERE. Akibatnya tanggal yang transaksinya tidak memakai bahan ini
+        // tidak hilang: kolom menu_bahan_baku-nya kosong (NULL), SUM-nya kosong,
+        // lalu COALESCE mengubahnya menjadi 0.
         $pemakaianPerTanggal = DB::table('transaksi')
-            ->join('detail_transaksi', 'detail_transaksi.transaksi_id', '=', 'transaksi.id')
-            ->join('menu_bahan_baku', 'menu_bahan_baku.menu_id', '=', 'detail_transaksi.menu_id')
-            ->where('menu_bahan_baku.bahan_baku_id', $bahanBakuId)
+            ->leftJoin('detail_transaksi', 'detail_transaksi.transaksi_id', '=', 'transaksi.id')
+            ->leftJoin('menu_bahan_baku', function ($join) use ($bahanBakuId) {
+                $join->on('menu_bahan_baku.menu_id', '=', 'detail_transaksi.menu_id')
+                    ->where('menu_bahan_baku.bahan_baku_id', '=', $bahanBakuId);
+            })
             ->whereBetween('transaksi.tanggal', [$awal->toDateString(), $akhir->toDateString()])
             ->groupBy('transaksi.tanggal')
-            ->selectRaw('transaksi.tanggal, SUM(detail_transaksi.jumlah * menu_bahan_baku.jumlah) AS pemakaian')
+            ->orderBy('transaksi.tanggal')
+            ->selectRaw('transaksi.tanggal, COALESCE(SUM(detail_transaksi.jumlah * menu_bahan_baku.jumlah), 0) AS pemakaian')
             ->pluck('pemakaian', 'tanggal');
 
-        // Susun deret lengkap dari tanggal awal sampai akhir (tanpa query lagi).
-        // Tanggal yang tidak ada di hasil query berarti tidak ada pemakaian: diisi 0.
+        // Ubah nilai teks dari basis data menjadi angka. Urutan tanggal sudah dari query.
         $hasil = [];
-        foreach (CarbonPeriod::create($awal, $akhir) as $hari) {
-            $tanggal = $hari->toDateString();
-            $hasil[$tanggal] = (float) ($pemakaianPerTanggal[$tanggal] ?? 0);
+        foreach ($pemakaianPerTanggal as $tanggal => $pemakaian) {
+            $hasil[$tanggal] = (float) $pemakaian;
         }
 
         return $hasil;
