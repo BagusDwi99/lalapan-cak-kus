@@ -3,19 +3,19 @@
 @section('judul', 'Laba Rugi')
 
 @section('konten')
-    <h1 class="h3 mb-3">Laporan Laba Rugi</h1>
+    <x-kepala-halaman judul="Laporan Laba Rugi" keterangan="Penjualan, HPP, biaya operasional, dan laba bersih per bulan" />
 
-    <form method="GET" action="/laba-rugi" class="row g-2 align-items-end mb-3">
+    <form method="GET" action="/laba-rugi" class="row g-2 align-items-end jarak-bagian">
         @include('partials.pilih_periode', ['bulanTerpilih' => $bulan, 'tahunTerpilih' => $tahun])
         <div class="col-auto">
-            <button type="submit" class="btn btn-outline-secondary">Tampilkan</button>
+            <button type="submit" class="btn btn-saring">Tampilkan</button>
         </div>
     </form>
 
-    <div class="card" style="max-width: 640px;">
+    <div class="card kartu-form">
         <div class="card-header fw-semibold">Periode {{ $namaPeriode }}</div>
-        <div class="card-body p-0">
-            <table class="table mb-0">
+        {{-- Tabel langsung di dalam kartu, supaya tepi kiri-kanannya sejajar dengan judul kartu --}}
+        <table class="table">
                 <tbody>
                     <tr>
                         <td>Total Penjualan</td>
@@ -35,12 +35,13 @@
                     </tr>
                     @forelse ($daftarBiaya as $biaya)
                         <tr>
-                            <td class="ps-4">{{ $biaya->nama }}</td>
+                            {{-- Menjorok ke dalam sebagai rincian biaya --}}
+                            <td style="padding-left: 36px !important;">{{ $biaya->nama }}</td>
                             <td class="text-end">{{ Number::currency($biaya->jumlah, in: 'IDR', locale: 'id') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="2" class="ps-4 text-muted">Belum ada biaya operasional pada bulan ini.</td>
+                            <td colspan="2" class="sel-kosong">Belum ada biaya operasional pada bulan ini.</td>
                         </tr>
                     @endforelse
                     <tr>
@@ -55,7 +56,6 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
     </div>
 
     <p class="small text-muted mt-2">

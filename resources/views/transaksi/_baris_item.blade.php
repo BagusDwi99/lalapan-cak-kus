@@ -6,7 +6,7 @@
 <tr class="baris-item">
     <td>
         <select name="item[{{ $i }}][menu_id]"
-                class="form-select pilih-menu @error("item.$i.menu_id") is-invalid @enderror">
+                style="min-width: 170px;" class="form-select pilih-menu @error("item.$i.menu_id") is-invalid @enderror">
             <option value="">-- Pilih menu --</option>
             @foreach ($daftarMenu as $menu)
                 {{-- data-harga dibaca JavaScript untuk menghitung subtotal --}}

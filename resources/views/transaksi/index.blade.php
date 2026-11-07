@@ -3,17 +3,16 @@
 @section('judul', 'Transaksi Penjualan')
 
 @section('konten')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Transaksi Penjualan</h1>
+    <x-kepala-halaman judul="Transaksi Penjualan" keterangan="Riwayat penjualan harian warung">
         <a href="/transaksi/create" class="btn btn-primary">Transaksi Baru</a>
-    </div>
+    </x-kepala-halaman>
 
     <div class="alert alert-info">
         <strong>Catatan:</strong> transaksi penjualan tidak bisa diubah atau dihapus.
         Setiap transaksi sudah mengurangi stok bahan baku.
     </div>
 
-    <form method="GET" action="/transaksi" class="row g-2 align-items-end mb-3">
+    <form method="GET" action="/transaksi" class="row g-2 align-items-end jarak-bagian">
         <div class="col-md-2">
             <label for="dari" class="form-label small mb-1">Dari Tanggal</label>
             <input type="date" id="dari" name="dari" value="{{ $filter['dari'] }}" class="form-control">
@@ -23,9 +22,9 @@
             <input type="date" id="sampai" name="sampai" value="{{ $filter['sampai'] }}" class="form-control">
         </div>
         <div class="col-md-auto">
-            <button type="submit" class="btn btn-outline-secondary">Saring</button>
+            <button type="submit" class="btn btn-saring">Saring</button>
             @if (array_filter($filter))
-                <a href="/transaksi" class="btn btn-outline-secondary">Reset</a>
+                <a href="/transaksi" class="btn btn-saring">Reset</a>
             @endif
         </div>
     </form>
@@ -62,7 +61,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $tampilkanLaba ? 6 : 5 }}" class="text-center text-muted py-4">
+                            <td colspan="{{ $tampilkanLaba ? 6 : 5 }}" class="sel-kosong">
                                 {{ array_filter($filter) ? 'Tidak ada transaksi pada rentang tanggal ini.' : 'Belum ada transaksi.' }}
                             </td>
                         </tr>

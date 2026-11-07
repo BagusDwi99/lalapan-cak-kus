@@ -4,17 +4,16 @@
 
 @section('konten')
     {{-- Judul di kiri, tombol Tambah di kanan --}}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Bahan Baku</h1>
+    <x-kepala-halaman judul="Bahan Baku" keterangan="Daftar bahan baku beserta stok, stok minimum, dan harga rata-rata">
         <a href="/bahan-baku/create" class="btn btn-primary">Tambah</a>
-    </div>
+    </x-kepala-halaman>
 
     {{-- Pencarian memakai GET supaya kata pencarian tampil di alamat URL --}}
-    <form method="GET" action="/bahan-baku" class="d-flex gap-2 mb-3" style="max-width: 420px;">
+    <form method="GET" action="/bahan-baku" class="d-flex gap-2 jarak-bagian" style="max-width: 420px;">
         <input type="text" name="cari" value="{{ $cari }}" class="form-control" placeholder="Cari nama bahan baku">
-        <button type="submit" class="btn btn-outline-secondary">Cari</button>
+        <button type="submit" class="btn btn-saring">Cari</button>
         @if ($cari)
-            <a href="/bahan-baku" class="btn btn-outline-secondary">Reset</a>
+            <a href="/bahan-baku" class="btn btn-saring">Reset</a>
         @endif
     </form>
 
@@ -50,7 +49,7 @@
                             {{-- Number::currency menampilkan rupiah, misalnya Rp 8.639,61 --}}
                             <td class="text-end">{{ Number::currency($bahanBaku->harga_rata_rata, in: 'IDR', locale: 'id') }}</td>
                             <td class="text-center">
-                                <a href="/bahan-baku/{{ $bahanBaku->id }}/edit" class="btn btn-sm btn-warning">Ubah</a>
+                                <a href="/bahan-baku/{{ $bahanBaku->id }}/edit" class="btn btn-sm btn-outline-primary">Ubah</a>
 
                                 {{-- Hapus memakai formulir DELETE, dengan konfirmasi terlebih dahulu.
                                      Pesan konfirmasi disimpan di data-pesan supaya aman walaupun
@@ -60,13 +59,13 @@
                                       onsubmit="return confirm(this.dataset.pesan)">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
                                 </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="6" class="sel-kosong">
                                 {{ $cari ? "Bahan baku dengan nama \"{$cari}\" tidak ditemukan." : 'Belum ada data bahan baku.' }}
                             </td>
                         </tr>

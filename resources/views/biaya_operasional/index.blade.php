@@ -3,21 +3,20 @@
 @section('judul', 'Biaya Operasional')
 
 @section('konten')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Biaya Operasional</h1>
+    <x-kepala-halaman judul="Biaya Operasional" keterangan="Beban bulanan warung, dikelompokkan per periode">
         <a href="/biaya-operasional/create" class="btn btn-primary">Tambah</a>
-    </div>
+    </x-kepala-halaman>
 
-    <form method="GET" action="/biaya-operasional" class="row g-2 align-items-end mb-3">
+    <form method="GET" action="/biaya-operasional" class="row g-2 align-items-end jarak-bagian">
         @include('partials.pilih_periode', [
             'bulanTerpilih' => $filter['bulan'],
             'tahunTerpilih' => $filter['tahun'],
             'pilihanSemua' => true,
         ])
         <div class="col-auto">
-            <button type="submit" class="btn btn-outline-secondary">Saring</button>
+            <button type="submit" class="btn btn-saring">Saring</button>
             @if (array_filter($filter))
-                <a href="/biaya-operasional" class="btn btn-outline-secondary">Reset</a>
+                <a href="/biaya-operasional" class="btn btn-saring">Reset</a>
             @endif
         </div>
     </form>
@@ -48,13 +47,13 @@
                                 <td class="text-end">{{ Number::currency($biaya->jumlah, in: 'IDR', locale: 'id') }}</td>
                                 <td>{{ $namaPeriode }}</td>
                                 <td class="text-center">
-                                    <a href="/biaya-operasional/{{ $biaya->id }}/edit" class="btn btn-sm btn-warning">Ubah</a>
+                                    <a href="/biaya-operasional/{{ $biaya->id }}/edit" class="btn btn-sm btn-outline-primary">Ubah</a>
                                     <form method="POST" action="/biaya-operasional/{{ $biaya->id }}" class="d-inline"
                                           data-pesan="Hapus biaya {{ $biaya->nama }} periode {{ $namaPeriode }}?"
                                           onsubmit="return confirm(this.dataset.pesan)">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
                                     </form>
                                 </td>
                             </tr>
@@ -68,7 +67,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center text-muted py-4">
+                            <td colspan="4" class="sel-kosong">
                                 {{ array_filter($filter) ? 'Tidak ada biaya operasional pada periode ini.' : 'Belum ada biaya operasional.' }}
                             </td>
                         </tr>

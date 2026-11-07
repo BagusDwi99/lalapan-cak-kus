@@ -3,8 +3,7 @@
 @section('judul', 'Tutup Buku')
 
 @section('konten')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Tutup Buku</h1>
+    <x-kepala-halaman judul="Tutup Buku" keterangan="Rekap penjualan harian; satu tanggal hanya bisa ditutup sekali">
 
         <form method="POST" action="/tutup-buku"
               data-pesan="Tutup buku hari ini ({{ today()->format('d/m/Y') }})? Proses ini hanya bisa dilakukan sekali."
@@ -15,10 +14,10 @@
                 Tutup Buku Hari Ini
             </button>
         </form>
-    </div>
+    </x-kepala-halaman>
 
     @if ($tutupBukuHariIni)
-        <div class="alert alert-secondary">
+        <div class="alert alert-success">
             Hari ini ({{ today()->format('d/m/Y') }}) sudah ditutup pada pukul
             {{ $tutupBukuHariIni->created_at->format('H:i') }}.
             Tutup buku berikutnya bisa dilakukan besok.
@@ -51,7 +50,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $tampilkanLaba ? 4 : 3 }}" class="text-center text-muted py-4">Belum ada tutup buku.</td>
+                            <td colspan="{{ $tampilkanLaba ? 4 : 3 }}" class="sel-kosong">Belum ada tutup buku.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -68,7 +67,7 @@
         <div class="modal fade" id="modal-stok" tabindex="-1" aria-labelledby="judul-modal-stok" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
-                    <div class="modal-header {{ $bahanMenipis->isNotEmpty() ? 'bg-warning' : 'bg-success text-white' }}">
+                    <div class="modal-header {{ $bahanMenipis->isNotEmpty() ? 'kepala-peringatan' : 'kepala-aman' }}">
                         <h2 class="modal-title fs-5" id="judul-modal-stok">
                             {{ $bahanMenipis->isNotEmpty() ? 'Peringatan Stok Menipis' : 'Stok Aman' }}
                         </h2>

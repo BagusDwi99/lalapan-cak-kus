@@ -3,9 +3,9 @@
 @section('judul', 'Tambah Menu')
 
 @section('konten')
-    <h1 class="h3 mb-3">Tambah Menu</h1>
+    <x-kepala-halaman judul="Tambah Menu" keterangan="Isi harga jual dan komposisi bahan baku untuk satu porsi" />
 
-    <div class="card" style="max-width: 760px;">
+    <div class="card kartu-form">
         <div class="card-body">
             <form method="POST" action="/menu">
                 @csrf

@@ -3,17 +3,11 @@
 @section('judul', 'Detail Transaksi')
 
 @section('konten')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Detail Transaksi #{{ $transaksi->id }}</h1>
-        <a href="/transaksi" class="btn btn-secondary">Kembali</a>
-    </div>
-
-    <dl class="row mb-3" style="max-width: 500px;">
-        <dt class="col-4">Tanggal</dt>
-        <dd class="col-8">{{ $transaksi->tanggal->format('d/m/Y') }}</dd>
-        <dt class="col-4">Kasir</dt>
-        <dd class="col-8">{{ $transaksi->user->name }}</dd>
-    </dl>
+    {{-- Tanggal dan kasir ditampilkan sebagai keterangan di bawah judul --}}
+    <x-kepala-halaman :judul="'Detail Transaksi #' . $transaksi->id"
+                      :keterangan="'Tanggal ' . $transaksi->tanggal->format('d/m/Y') . ' · Dicatat oleh ' . $transaksi->user->name">
+        <a href="/transaksi" class="btn btn-outline-secondary">Kembali</a>
+    </x-kepala-halaman>
 
     <div class="card">
         <div class="table-responsive">

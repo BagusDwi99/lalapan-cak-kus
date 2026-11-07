@@ -3,9 +3,9 @@
 @section('judul', 'Ubah Menu')
 
 @section('konten')
-    <h1 class="h3 mb-3">Ubah Menu</h1>
+    <x-kepala-halaman judul="Ubah Menu" keterangan="Isi harga jual dan komposisi bahan baku untuk satu porsi" />
 
-    <div class="card" style="max-width: 760px;">
+    <div class="card kartu-form">
         <div class="card-body">
             <form method="POST" action="/menu/{{ $menu->id }}">
                 @csrf

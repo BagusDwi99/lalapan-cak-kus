@@ -3,9 +3,9 @@
 @section('judul', 'Tambah Bahan Baku')
 
 @section('konten')
-    <h1 class="h3 mb-3">Tambah Bahan Baku</h1>
+    <x-kepala-halaman judul="Tambah Bahan Baku" keterangan="Stok awal hanya diisi sekali; selanjutnya stok berubah lewat barang masuk dan penjualan" />
 
-    <div class="card" style="max-width: 600px;">
+    <div class="card kartu-form">
         <div class="card-body">
             <form method="POST" action="/bahan-baku">
                 @csrf

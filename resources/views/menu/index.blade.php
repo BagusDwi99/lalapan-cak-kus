@@ -3,16 +3,15 @@
 @section('judul', 'Menu')
 
 @section('konten')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Menu</h1>
+    <x-kepala-halaman judul="Menu" keterangan="Daftar menu beserta harga jual dan komposisi bahan bakunya">
         <a href="/menu/create" class="btn btn-primary">Tambah</a>
-    </div>
+    </x-kepala-halaman>
 
-    <form method="GET" action="/menu" class="d-flex gap-2 mb-3" style="max-width: 420px;">
+    <form method="GET" action="/menu" class="d-flex gap-2 jarak-bagian" style="max-width: 420px;">
         <input type="text" name="cari" value="{{ $cari }}" class="form-control" placeholder="Cari nama menu">
-        <button type="submit" class="btn btn-outline-secondary">Cari</button>
+        <button type="submit" class="btn btn-saring">Cari</button>
         @if ($cari)
-            <a href="/menu" class="btn btn-outline-secondary">Reset</a>
+            <a href="/menu" class="btn btn-saring">Reset</a>
         @endif
     </form>
 
@@ -23,7 +22,7 @@
                     <tr>
                         <th>Nama Menu</th>
                         <th class="text-end">Harga Jual</th>
-                        <th class="text-center">Jumlah Bahan</th>
+                        <th class="text-end">Jumlah Bahan</th>
                         {{-- Hanya owner. @if dijalankan di server, jadi untuk kasir kolom ini tidak ada di HTML --}}
                         @if ($tampilkanLaba)
                             <th class="text-end">Perkiraan HPP</th>
@@ -37,7 +36,7 @@
                         <tr>
                             <td>{{ $menu->nama }}</td>
                             <td class="text-end">{{ Number::currency($menu->harga_jual, in: 'IDR', locale: 'id') }}</td>
-                            <td class="text-center">{{ $menu->bahanBaku->count() }} bahan</td>
+                            <td class="text-end">{{ $menu->bahanBaku->count() }} bahan</td>
                             @if ($tampilkanLaba)
                                 <td class="text-end">{{ Number::currency($menu->perkiraan_hpp, in: 'IDR', locale: 'id') }}</td>
                                 {{-- Laba negatif (rugi) ditampilkan merah --}}
@@ -46,19 +45,19 @@
                                 </td>
                             @endif
                             <td class="text-center">
-                                <a href="/menu/{{ $menu->id }}/edit" class="btn btn-sm btn-warning">Ubah</a>
+                                <a href="/menu/{{ $menu->id }}/edit" class="btn btn-sm btn-outline-primary">Ubah</a>
                                 <form method="POST" action="/menu/{{ $menu->id }}" class="d-inline"
                                       data-pesan="Hapus menu {{ $menu->nama }}?"
                                       onsubmit="return confirm(this.dataset.pesan)">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
                                 </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $tampilkanLaba ? 6 : 4 }}" class="text-center text-muted py-4">
+                            <td colspan="{{ $tampilkanLaba ? 6 : 4 }}" class="sel-kosong">
                                 {{ $cari ? "Menu dengan nama \"{$cari}\" tidak ditemukan." : 'Belum ada data menu.' }}
                             </td>
                         </tr>

@@ -16,7 +16,10 @@
         <hr>
     </div>
 
-    <h1 class="h3 mb-3 d-print-none">Laporan</h1>
+    {{-- Tombol Cetak di kanan judul. Mencetak tab yang sedang terbuka; kepala halaman tidak ikut tercetak. --}}
+    <x-kepala-halaman class="d-print-none" judul="Laporan" keterangan="Laporan penjualan per menu dan laporan persediaan bahan baku per periode">
+        <button type="button" class="btn btn-primary" onclick="window.print()">Cetak</button>
+    </x-kepala-halaman>
 
     {{-- Tab Bootstrap. Tab aktif ditentukan server supaya tetap terbuka setelah menyaring. --}}
     <ul class="nav nav-tabs mb-3 d-print-none" role="tablist">
@@ -35,7 +38,7 @@
     <div class="tab-content">
         {{-- ============ Tab 1: Laporan Penjualan ============ --}}
         <div class="tab-pane fade @if ($tab === 'penjualan') show active @endif" id="isi-penjualan" role="tabpanel" aria-labelledby="tab-penjualan">
-            <form method="GET" action="/laporan" class="row g-2 align-items-end mb-3 d-print-none">
+            <form method="GET" action="/laporan" class="row g-2 align-items-end jarak-bagian d-print-none">
                 <input type="hidden" name="tab" value="penjualan">
                 {{-- Rentang tab persediaan ikut dikirim supaya tidak hilang --}}
                 <input type="hidden" name="stok_dari" value="{{ $stokDari->toDateString() }}">
@@ -49,10 +52,7 @@
                     <input type="date" id="jual_sampai" name="jual_sampai" value="{{ $jualSampai->toDateString() }}" class="form-control">
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-outline-secondary">Tampilkan</button>
-                </div>
-                <div class="col-auto ms-auto">
-                    <button type="button" class="btn btn-primary" onclick="window.print()">Cetak</button>
+                    <button type="submit" class="btn btn-saring">Tampilkan</button>
                 </div>
             </form>
 
@@ -74,7 +74,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($penjualan['baris'] as $baris)
+                            @forelse ($penjualan['baris'] as $baris)
                                 <tr class="{{ $baris['porsi'] === 0 ? 'text-muted' : '' }}">
                                     <td>{{ $baris['nama'] }}</td>
                                     <td class="text-end">{{ $angka($baris['porsi']) }}</td>
@@ -82,7 +82,9 @@
                                     <td class="text-end">{{ $rupiah($baris['hpp']) }}</td>
                                     <td class="text-end">{{ $rupiah($baris['laba']) }}</td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr><td colspan="5" class="sel-kosong">Belum ada data menu.</td></tr>
+                            @endforelse
                         </tbody>
                         <tfoot class="table-light fw-bold">
                             <tr>
@@ -101,7 +103,7 @@
 
         {{-- ============ Tab 2: Laporan Persediaan ============ --}}
         <div class="tab-pane fade @if ($tab === 'persediaan') show active @endif" id="isi-persediaan" role="tabpanel" aria-labelledby="tab-persediaan">
-            <form method="GET" action="/laporan" class="row g-2 align-items-end mb-3 d-print-none">
+            <form method="GET" action="/laporan" class="row g-2 align-items-end jarak-bagian d-print-none">
                 <input type="hidden" name="tab" value="persediaan">
                 {{-- Rentang tab penjualan ikut dikirim supaya tidak hilang --}}
                 <input type="hidden" name="jual_dari" value="{{ $jualDari->toDateString() }}">
@@ -115,10 +117,7 @@
                     <input type="date" id="stok_sampai" name="stok_sampai" value="{{ $stokSampai->toDateString() }}" class="form-control">
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-outline-secondary">Tampilkan</button>
-                </div>
-                <div class="col-auto ms-auto">
-                    <button type="button" class="btn btn-primary" onclick="window.print()">Cetak</button>
+                    <button type="submit" class="btn btn-saring">Tampilkan</button>
                 </div>
             </form>
 
@@ -143,7 +142,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($persediaan['baris'] as $baris)
+                            @forelse ($persediaan['baris'] as $baris)
                                 <tr class="{{ $baris['menipis'] ? 'table-danger' : '' }}">
                                     <td>
                                         {{ $baris['nama'] }}
@@ -159,7 +158,9 @@
                                     <td class="text-end">{{ $rupiah($baris['hargaRataRata']) }}</td>
                                     <td class="text-end">{{ $rupiah($baris['nilai']) }}</td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr><td colspan="8" class="sel-kosong">Belum ada data bahan baku.</td></tr>
+                            @endforelse
                         </tbody>
                         <tfoot class="table-light fw-bold">
                             <tr>

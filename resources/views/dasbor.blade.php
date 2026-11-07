@@ -22,12 +22,11 @@
     @if ($tutupBukuHariIni)
         <div class="alert alert-success d-flex align-items-center justify-content-between">
             <span><strong>Sudah tutup buku.</strong> Hari ini ditutup pada pukul {{ $tutupBukuHariIni->created_at->format('H:i') }}.</span>
-            <a href="/tutup-buku" class="btn btn-sm btn-outline-success">Lihat Tutup Buku</a>
+            <a href="/tutup-buku" class="btn btn-sm btn-outline-primary bg-white">Lihat Tutup Buku</a>
         </div>
     @else
-        {{-- Warna kalem: latar krem, garis tepi emas pudar, teks cokelat. Tombol bergaris tepi --primary. --}}
-        <div class="alert d-flex align-items-center justify-content-between"
-             style="--bs-alert-bg: #FDF6E3; --bs-alert-border-color: #E8D9A8; --bs-alert-color: #7A5C18;">
+        {{-- Warna kalem alert-warning diatur di partials/gaya (sama di seluruh halaman) --}}
+        <div class="alert alert-warning d-flex align-items-center justify-content-between">
             <span><strong>Belum tutup buku.</strong> Lakukan tutup buku di akhir hari operasional.</span>
             <a href="/tutup-buku" class="btn btn-sm btn-outline-primary bg-white">Ke Tutup Buku</a>
         </div>

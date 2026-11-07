@@ -3,9 +3,9 @@
 @section('judul', 'Tambah Biaya Operasional')
 
 @section('konten')
-    <h1 class="h3 mb-3">Tambah Biaya Operasional</h1>
+    <x-kepala-halaman judul="Tambah Biaya Operasional" keterangan="Nama biaya tidak boleh sama dalam satu periode" />
 
-    <div class="card" style="max-width: 600px;">
+    <div class="card kartu-form">
         <div class="card-body">
             <form method="POST" action="/biaya-operasional">
                 @csrf

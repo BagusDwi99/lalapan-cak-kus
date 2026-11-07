@@ -3,9 +3,9 @@
 @section('judul', 'Ubah Bahan Baku')
 
 @section('konten')
-    <h1 class="h3 mb-3">Ubah Bahan Baku</h1>
+    <x-kepala-halaman judul="Ubah Bahan Baku" keterangan="Stok dan harga rata-rata tidak bisa diubah langsung" />
 
-    <div class="card" style="max-width: 600px;">
+    <div class="card kartu-form">
         <div class="card-body">
             <form method="POST" action="/bahan-baku/{{ $bahanBaku->id }}">
                 @csrf

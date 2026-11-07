@@ -8,7 +8,7 @@
         $indeksBerikutnya = empty($daftarItem) ? 0 : max(array_map('intval', array_keys($daftarItem))) + 1;
     @endphp
 
-    <h1 class="h3 mb-3">Transaksi Baru</h1>
+    <x-kepala-halaman judul="Transaksi Baru" keterangan="Stok bahan baku berkurang otomatis sesuai komposisi menu" />
 
     {{-- Pesan stok tidak cukup dari TransaksiService --}}
     @if ($errors->has('stok'))
@@ -26,7 +26,7 @@
         <div class="alert alert-danger">{{ $message }}</div>
     @enderror
 
-    <div class="card" style="max-width: 900px;">
+    <div class="card kartu-form">
         <div class="card-body">
             <form method="POST" action="/transaksi">
                 @csrf
@@ -45,10 +45,10 @@
                     <thead class="table-light">
                         <tr>
                             <th>Menu</th>
-                            <th style="width: 130px;">Jumlah Porsi</th>
-                            <th class="text-end" style="width: 150px;">Harga Jual</th>
-                            <th class="text-end" style="width: 160px;">Subtotal</th>
-                            <th style="width: 80px;"></th>
+                            <th style="width: 90px;">Porsi</th>
+                            <th class="text-end" style="width: 110px;">Harga</th>
+                            <th class="text-end" style="width: 120px;">Subtotal</th>
+                            <th style="width: 70px;"></th>
                         </tr>
                     </thead>
                     <tbody id="daftar-item">
