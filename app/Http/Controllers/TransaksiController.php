@@ -32,7 +32,7 @@ class TransaksiController extends Controller
             ->when($filter['sampai'], fn ($query, $tanggal) => $query->whereDate('tanggal', '<=', $tanggal))
             ->orderByDesc('tanggal')
             ->orderByDesc('id')
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
 
         return view('transaksi.index', compact('daftarTransaksi', 'filter', 'tampilkanLaba'));

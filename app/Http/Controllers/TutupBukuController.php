@@ -16,7 +16,7 @@ class TutupBukuController extends Controller
     // Halaman daftar tutup buku dan tombol "Tutup Buku Hari Ini".
     public function index(Request $request)
     {
-        $daftarTutupBuku = TutupBuku::orderByDesc('tanggal')->paginate(15);
+        $daftarTutupBuku = TutupBuku::orderByDesc('tanggal')->paginate(10);
 
         // Data tutup buku hari ini, jika sudah ada (untuk menonaktifkan tombol).
         $tutupBukuHariIni = TutupBuku::whereDate('tanggal', today())->first();

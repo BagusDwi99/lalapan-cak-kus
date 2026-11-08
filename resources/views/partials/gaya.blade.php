@@ -167,7 +167,19 @@
         .g-bagian { --bs-gutter-x: 20px; --bs-gutter-y: 20px; }
 
         /* ---------- Sidebar ---------- */
-        .sidebar { width: 240px; background: var(--sidebar-bg); color: var(--sidebar-text); padding: 20px 14px; }
+        /* Sidebar tetap di tempat saat halaman digulir: menempel di kiri, setinggi layar.
+           Isinya tersusun atas-bawah (d-flex flex-column di HTML): nama warung, daftar menu, blok pengguna. */
+        .sidebar {
+            position: fixed; top: 0; bottom: 0; left: 0; z-index: 1020;
+            width: 240px; height: 100vh; overflow: hidden;
+            background: var(--sidebar-bg); color: var(--sidebar-text); padding: 20px 14px;
+        }
+        /* Hanya daftar menu yang bisa digulir jika lebih panjang dari layar.
+           min-height: 0 wajib supaya bagian flex ini boleh lebih pendek dari isinya dan menampilkan gulungan.
+           flex-wrap: nowrap supaya menu tidak pindah ke kolom kedua saat ruangnya sempit. */
+        .sidebar .nav { flex-wrap: nowrap; min-height: 0; overflow-y: auto; }
+        /* Nama warung dan blok pengguna tidak ikut menyusut, jadi selalu terlihat */
+        .sidebar > :not(.nav) { flex-shrink: 0; }
         .sidebar-nama { color: #fff; font-size: 16px; font-weight: 700; text-decoration: none; line-height: 1.25; }
         .sidebar-nama:hover { color: #fff; }
         .sidebar-sub { font-size: 12px; color: #9FB0C9; margin-top: 2px; }
@@ -187,7 +199,13 @@
         }
 
         /* Isi halaman. min-width: 0 supaya tabel lebar tidak mendorong tata letak keluar layar. */
-        .isi-halaman { padding: 24px 28px; min-width: 0; }
+        /* margin-left 240px: memberi tempat untuk sidebar yang menempel, supaya isi tidak tertimpa. */
+        .isi-halaman { padding: 24px 28px; min-width: 0; margin-left: 240px; }
+
+        /* Saat dicetak sidebar disembunyikan (kelas d-print-none di HTML), jadi ruangnya juga dilepas. */
+        @media print {
+            .isi-halaman { margin-left: 0; }
+        }
 
         /* ================= Aturan seragam untuk seluruh halaman ================= */
 

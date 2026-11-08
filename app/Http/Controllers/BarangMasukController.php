@@ -31,7 +31,7 @@ class BarangMasukController extends Controller
             // Terbaru di atas. Jika tanggalnya sama, yang dicatat belakangan di atas.
             ->orderByDesc('tanggal')
             ->orderByDesc('id')
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
 
         return view('barang_masuk.index', [
