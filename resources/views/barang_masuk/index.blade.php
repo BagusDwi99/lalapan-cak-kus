@@ -3,16 +3,9 @@
 @section('judul', 'Barang Masuk')
 
 @section('konten')
-    <x-kepala-halaman judul="Barang Masuk" keterangan="Riwayat pembelian bahan baku; setiap pencatatan menghitung ulang harga rata-rata">
+    <x-kepala-halaman judul="Barang Masuk" keterangan="Riwayat pembelian bahan baku. Barang masuk tidak dapat diubah atau dihapus.">
         <a href="/barang-masuk/create" class="btn btn-primary">Tambah</a>
     </x-kepala-halaman>
-
-    <div class="alert alert-info">
-        <strong>Catatan:</strong> barang masuk tidak bisa diubah atau dihapus, seperti jurnal akuntansi.
-        Setiap pencatatan menghitung ulang harga rata-rata bahan baku dari stok dan harga rata-rata sebelumnya.
-        Jika satu catatan lama diubah, seluruh riwayat harga rata-rata sesudahnya menjadi tidak sahih.
-        Periksa kembali data sebelum menyimpan.
-    </div>
 
     {{-- Penyaring: bahan baku dan rentang tanggal --}}
     <form method="GET" action="/barang-masuk" class="row g-2 align-items-end jarak-bagian">

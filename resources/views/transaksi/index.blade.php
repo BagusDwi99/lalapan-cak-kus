@@ -3,15 +3,10 @@
 @section('judul', 'Riwayat Transaksi')
 
 @section('konten')
-    <x-kepala-halaman judul="Riwayat Transaksi" keterangan="Daftar transaksi penjualan yang sudah tercatat">
+    <x-kepala-halaman judul="Riwayat Transaksi" keterangan="Riwayat penjualan harian warung. Transaksi tidak dapat diubah atau dihapus.">
         {{-- Transaksi baru dicatat di halaman Kasir --}}
         <a href="/kasir" class="btn btn-primary">Transaksi Baru</a>
     </x-kepala-halaman>
-
-    <div class="alert alert-info">
-        <strong>Catatan:</strong> transaksi penjualan tidak bisa diubah atau dihapus.
-        Setiap transaksi sudah mengurangi stok bahan baku.
-    </div>
 
     <form method="GET" action="/transaksi" class="row g-2 align-items-end jarak-bagian">
         <div class="col-md-2">
