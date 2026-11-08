@@ -19,10 +19,12 @@
     // owner  = true jika menu hanya tampil untuk owner
     $daftarMenu = [
         ['judul' => 'Dasbor',                   'url' => '/dasbor',            'aktif' => 'dasbor*',            'owner' => false],
+        // Kasir paling atas setelah Dasbor karena paling sering dipakai.
+        ['judul' => 'Kasir',                    'url' => '/kasir',             'aktif' => 'kasir*',             'owner' => false],
         ['judul' => 'Bahan Baku',               'url' => '/bahan-baku',        'aktif' => 'bahan-baku*',        'owner' => false],
         ['judul' => 'Menu',                     'url' => '/menu',              'aktif' => 'menu*',              'owner' => false],
         ['judul' => 'Barang Masuk',             'url' => '/barang-masuk',      'aktif' => 'barang-masuk*',      'owner' => false],
-        ['judul' => 'Transaksi Penjualan',      'url' => '/transaksi',         'aktif' => 'transaksi*',         'owner' => false],
+        ['judul' => 'Riwayat Transaksi',        'url' => '/transaksi',         'aktif' => 'transaksi*',         'owner' => false],
         ['judul' => 'Biaya Operasional',        'url' => '/biaya-operasional', 'aktif' => 'biaya-operasional*', 'owner' => true],
         ['judul' => 'Prediksi Kebutuhan Stok',  'url' => '/prediksi',          'aktif' => 'prediksi*',          'owner' => true],
         ['judul' => 'Laba Rugi',                'url' => '/laba-rugi',         'aktif' => 'laba-rugi*',         'owner' => true],

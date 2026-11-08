@@ -47,6 +47,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>Tanggal</th>
+                        <th class="text-end">Waktu Dicatat</th>
                         <th>Bahan Baku</th>
                         <th class="text-end">Jumlah</th>
                         <th class="text-end">Harga Beli / Satuan</th>
@@ -58,6 +59,8 @@
                     @forelse ($daftarBarangMasuk as $barangMasuk)
                         <tr>
                             <td>{{ $barangMasuk->tanggal->format('d/m/Y') }}</td>
+                            {{-- Jam pencatatan dari kolom created_at (zona waktu WITA) --}}
+                            <td class="text-end">{{ $barangMasuk->created_at->format('H:i:s') }}</td>
                             <td>{{ $barangMasuk->bahanBaku->nama }}</td>
                             <td class="text-end">
                                 {{ Number::format($barangMasuk->jumlah, maxPrecision: 3, locale: 'id') }}
@@ -70,7 +73,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="sel-kosong">
+                            <td colspan="7" class="sel-kosong">
                                 {{ array_filter($filter) ? 'Tidak ada barang masuk yang sesuai penyaring.' : 'Belum ada data barang masuk.' }}
                             </td>
                         </tr>

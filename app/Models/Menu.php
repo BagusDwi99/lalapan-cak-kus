@@ -38,6 +38,25 @@ class Menu extends Model
     }
 
     /**
+     * Apakah stok semua bahan baku menu ini cukup untuk membuat SATU porsi.
+     * Dipakai halaman kasir untuk meredupkan menu yang tidak bisa dijual.
+     * Pemeriksaan akhir tetap dilakukan TransaksiService saat transaksi disimpan.
+     *
+     * $menu harus punya relasi bahanBaku (beserta pivot jumlah).
+     */
+    public function cukupUntukSatuPorsi(): bool
+    {
+        foreach ($this->bahanBaku as $bahan) {
+            // Stok bahan kurang dari pemakaian satu porsi: menu tidak bisa dibuat.
+            if ((float) $bahan->stok < (float) $bahan->pivot->jumlah) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Menghitung HPP satu porsi menu ini dari harga rata-rata bahan bakunya.
      *
      * Rumus:

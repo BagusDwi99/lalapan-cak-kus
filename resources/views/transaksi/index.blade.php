@@ -1,10 +1,11 @@
 @extends('layouts.app')
 
-@section('judul', 'Transaksi Penjualan')
+@section('judul', 'Riwayat Transaksi')
 
 @section('konten')
-    <x-kepala-halaman judul="Transaksi Penjualan" keterangan="Riwayat penjualan harian warung">
-        <a href="/transaksi/create" class="btn btn-primary">Transaksi Baru</a>
+    <x-kepala-halaman judul="Riwayat Transaksi" keterangan="Daftar transaksi penjualan yang sudah tercatat">
+        {{-- Transaksi baru dicatat di halaman Kasir --}}
+        <a href="/kasir" class="btn btn-primary">Transaksi Baru</a>
     </x-kepala-halaman>
 
     <div class="alert alert-info">
@@ -35,6 +36,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>Tanggal</th>
+                        <th class="text-end">Waktu Dicatat</th>
                         <th class="text-end">Jumlah Item</th>
                         <th class="text-end">Total Penjualan</th>
                         {{-- @if di Blade dijalankan di server: untuk kasir kolom ini tidak ada di HTML --}}
@@ -49,6 +51,8 @@
                     @forelse ($daftarTransaksi as $transaksi)
                         <tr>
                             <td>{{ $transaksi->tanggal->format('d/m/Y') }}</td>
+                            {{-- Jam pencatatan dari kolom created_at (zona waktu WITA) --}}
+                            <td class="text-end">{{ $transaksi->created_at->format('H:i:s') }}</td>
                             <td class="text-end">{{ $transaksi->jumlah_porsi }} porsi</td>
                             <td class="text-end">{{ Number::currency($transaksi->total, in: 'IDR', locale: 'id') }}</td>
                             @if ($tampilkanLaba)
@@ -61,7 +65,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $tampilkanLaba ? 6 : 5 }}" class="sel-kosong">
+                            <td colspan="{{ $tampilkanLaba ? 7 : 6 }}" class="sel-kosong">
                                 {{ array_filter($filter) ? 'Tidak ada transaksi pada rentang tanggal ini.' : 'Belum ada transaksi.' }}
                             </td>
                         </tr>

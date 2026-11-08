@@ -4,6 +4,7 @@ use App\Http\Controllers\BahanBakuController;
 use App\Http\Controllers\BarangMasukController;
 use App\Http\Controllers\BiayaOperasionalController;
 use App\Http\Controllers\DasborController;
+use App\Http\Controllers\KasirController;
 use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LoginController;
@@ -37,8 +38,16 @@ Route::middleware('auth')->group(function () {
     // Barang masuk hanya bisa dilihat dan ditambah, tidak bisa diubah atau dihapus.
     Route::resource('barang-masuk', BarangMasukController::class)->only(['index', 'create', 'store']);
 
-    // Transaksi hanya bisa dilihat, dilihat detailnya, dan ditambah. Tidak bisa diubah atau dihapus.
-    Route::resource('transaksi', TransaksiController::class)->only(['index', 'create', 'store', 'show']);
+    // Kasir: halaman mencatat transaksi baru (kasir dan owner).
+    Route::get('/kasir', [KasirController::class, 'index']);
+    Route::post('/kasir', [KasirController::class, 'store']);
+
+    // Alamat lama formulir transaksi diarahkan ke halaman kasir.
+    // Ditulis sebelum resource supaya "create" tidak dibaca sebagai nomor transaksi.
+    Route::redirect('/transaksi/create', '/kasir');
+
+    // Riwayat transaksi: hanya daftar dan detail. Tidak bisa diubah atau dihapus.
+    Route::resource('transaksi', TransaksiController::class)->only(['index', 'show']);
 
     // Tutup buku harian, bisa diakses kasir dan owner.
     Route::get('/tutup-buku', [TutupBukuController::class, 'index']);

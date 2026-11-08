@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\TransaksiRequest;
-use App\Models\Menu;
 use App\Models\Transaksi;
-use App\Services\TransaksiService;
 use Illuminate\Http\Request;
 
-// Mengatur halaman transaksi penjualan.
-// Hanya ada daftar, detail, dan tambah. Transaksi tidak bisa diubah atau dihapus.
+// Mengatur halaman riwayat transaksi penjualan: daftar dan detail.
+// Mencatat transaksi baru ada di KasirController (/kasir).
+// Transaksi tidak bisa diubah atau dihapus.
 class TransaksiController extends Controller
 {
     // Halaman daftar transaksi dengan penyaring rentang tanggal.
@@ -38,29 +36,6 @@ class TransaksiController extends Controller
             ->withQueryString();
 
         return view('transaksi.index', compact('daftarTransaksi', 'filter', 'tampilkanLaba'));
-    }
-
-    // Formulir transaksi baru.
-    public function create()
-    {
-        return view('transaksi.create', [
-            'daftarMenu' => Menu::orderBy('nama')->get(['id', 'nama', 'harga_jual']),
-            // Jika validasi gagal, tampilkan lagi baris yang tadi diisi. Jika tidak, satu baris kosong.
-            'daftarItem' => old('item', [['menu_id' => null, 'jumlah' => 1]]),
-        ]);
-    }
-
-    // Menyimpan transaksi. Seluruh prosesnya ada di TransaksiService.
-    public function store(TransaksiRequest $request, TransaksiService $transaksiService)
-    {
-        $transaksi = $transaksiService->simpan(
-            $request->validated('tanggal'),
-            $request->validated('item'),
-            $request->user()->id
-        );
-
-        return redirect("/transaksi/{$transaksi->id}")
-            ->with('berhasil', 'Transaksi berhasil disimpan.');
     }
 
     // Halaman detail satu transaksi.

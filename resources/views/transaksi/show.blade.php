@@ -5,7 +5,7 @@
 @section('konten')
     {{-- Tanggal dan kasir ditampilkan sebagai keterangan di bawah judul --}}
     <x-kepala-halaman :judul="'Detail Transaksi #' . $transaksi->id"
-                      :keterangan="'Tanggal ' . $transaksi->tanggal->format('d/m/Y') . ' · Dicatat oleh ' . $transaksi->user->name">
+                      :keterangan="'Tanggal ' . $transaksi->tanggal->format('d/m/Y') . ' · Dicatat ' . $transaksi->created_at->locale('id')->translatedFormat('l, j F Y') . ' pukul ' . $transaksi->created_at->format('H:i:s') . ' WITA oleh ' . $transaksi->user->name">
         <a href="/transaksi" class="btn btn-outline-secondary">Kembali</a>
     </x-kepala-halaman>
 

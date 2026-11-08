@@ -48,6 +48,11 @@ class DetailTransaksiSeeder extends Seeder
         // Angka acak harga beli memakai pembangkit TERPISAH (seed 1), supaya urutan
         // angka acak penjualan di atas tidak terganggu oleh simulasi belanja.
         $acakHarga = new Randomizer(new Mt19937(1));
+
+        // Angka acak waktu belanja juga memakai pembangkit terpisah (seed 5),
+        // supaya harga beli dan data penjualan tidak ikut berubah.
+        $acakWaktu = new Randomizer(new Mt19937(5));
+
         $idBahan = BahanBaku::pluck('id', 'nama');
 
         // Rentang porsi terjual per hari untuk setiap menu.
@@ -75,7 +80,17 @@ class DetailTransaksiSeeder extends Seeder
 
         foreach ($semuaTanggal as $tanggal) {
             // 1. Belanja pagi: isi stok tiap bahan sampai mencapai batas belanja.
+            //    Waktu pencatatan tiap belanja acak antara pukul 06.00 dan 09.00, diurutkan
+            //    supaya catatan yang lebih dulu juga bernomor lebih kecil.
+            $daftarDetik = [];
+            foreach (self::POLA_BELANJA as $pola) {
+                $daftarDetik[] = $acakWaktu->getInt(6 * 3600, 9 * 3600);
+            }
+            sort($daftarDetik);
+
             foreach (self::POLA_BELANJA as $namaBahan => $pola) {
+                // Ambil waktu berikutnya (dipakai berurutan, termasuk untuk bahan yang tidak dibeli).
+                $waktuBelanja = Carbon::parse($tanggal)->addSeconds(array_shift($daftarDetik));
                 $id = $idBahan[$namaBahan];
 
                 // Kekurangan terhadap batas (dibulatkan 3 angka seperti kolom stok).
@@ -96,13 +111,16 @@ class DetailTransaksiSeeder extends Seeder
                 $kondisiBahan[$id]['harga_rata_rata'] = $bahanSaatIni->hitungHargaRataRataBaru($jumlah, $hargaBeli);
                 $kondisiBahan[$id]['stok'] += $jumlah;
 
-                BarangMasuk::create([
+                // forceCreate supaya created_at bisa diisi waktu belanja (bukan waktu seeder dijalankan).
+                BarangMasuk::forceCreate([
                     'bahan_baku_id' => $id,
                     'tanggal' => Carbon::parse($tanggal)->toDateString(),
                     'jumlah' => $jumlah,
                     'harga_beli' => $hargaBeli,
                     // "Foto" harga rata-rata setelah barang masuk ini.
                     'harga_rata_rata_setelah' => $kondisiBahan[$id]['harga_rata_rata'],
+                    'created_at' => $waktuBelanja,
+                    'updated_at' => $waktuBelanja,
                 ]);
             }
 
@@ -151,13 +169,16 @@ class DetailTransaksiSeeder extends Seeder
                     $m = $menu[$namaMenu];
                     $hpp = $hppPerPorsi[$namaMenu];
 
-                    DetailTransaksi::create([
+                    // Waktu pencatatan detail sama dengan waktu notanya.
+                    DetailTransaksi::forceCreate([
                         'transaksi_id' => $nota->id,
                         'menu_id' => $m->id,
                         'jumlah' => $jumlah,
                         'harga_jual' => $m->harga_jual,
                         'hpp' => $hpp,
                         'laba_kotor' => ($m->harga_jual - $hpp) * $jumlah,
+                        'created_at' => $nota->created_at,
+                        'updated_at' => $nota->created_at,
                     ]);
 
                     $total += $m->harga_jual * $jumlah;
@@ -167,6 +188,8 @@ class DetailTransaksiSeeder extends Seeder
                     }
                 }
 
+                // timestamps = false: mengisi total tanpa mengubah updated_at menjadi waktu sekarang.
+                $nota->timestamps = false;
                 $nota->update(['total' => $total]);
             }
         }

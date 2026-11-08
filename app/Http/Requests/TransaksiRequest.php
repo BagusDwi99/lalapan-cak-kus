@@ -2,14 +2,18 @@
 
 namespace App\Http\Requests;
 
+use App\Models\TutupBuku;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
-// Aturan validasi formulir transaksi penjualan.
+// Aturan validasi formulir transaksi penjualan (halaman kasir).
 //
 // Item dikirim dalam bentuk array, contoh:
 //   item[0][menu_id] = 1, item[0][jumlah] = 2
 //   item[1][menu_id] = 7, item[1][jumlah] = 1
+//
+// Tanggal TIDAK diambil dari formulir: transaksi selalu dicatat pada hari ini (today() di server),
+// sehingga tanggal tidak bisa diakali lewat permintaan langsung.
 class TransaksiRequest extends FormRequest
 {
     public function authorize(): bool
@@ -20,10 +24,6 @@ class TransaksiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // unique:tutup_buku,tanggal = tanggal ini TIDAK boleh ada di tabel tutup_buku.
-            // Jika hari itu sudah ditutup buku, transaksi baru pada tanggal itu ditolak,
-            // supaya rekap di tutup_buku tetap sama dengan transaksi yang tercatat.
-            'tanggal' => ['required', 'date', 'before_or_equal:today', Rule::unique('tutup_buku', 'tanggal')],
             'item' => ['required', 'array', 'min:1'],
             // distinct: menu yang sama tidak boleh muncul di dua baris.
             'item.*.menu_id' => ['required', 'integer', 'exists:menu,id', 'distinct'],
@@ -35,10 +35,6 @@ class TransaksiRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'tanggal.required' => 'Tanggal wajib diisi.',
-            'tanggal.date' => 'Tanggal tidak valid.',
-            'tanggal.before_or_equal' => 'Tanggal tidak boleh di masa depan.',
-            'tanggal.unique' => 'Tanggal ini sudah ditutup buku, transaksi tidak dapat dicatat.',
             'item.required' => 'Transaksi wajib berisi minimal satu item.',
             'item.min' => 'Transaksi wajib berisi minimal satu item.',
             'item.*.menu_id.required' => 'Pilih menu.',
@@ -49,6 +45,19 @@ class TransaksiRequest extends FormRequest
             'item.*.jumlah.integer' => 'Jumlah porsi harus bilangan bulat.',
             'item.*.jumlah.min' => 'Jumlah porsi harus lebih dari nol.',
             'item.*.jumlah.max' => 'Jumlah porsi terlalu besar.',
+        ];
+    }
+
+    // Pemeriksaan tambahan setelah aturan di atas: tolak jika hari ini sudah ditutup buku,
+    // supaya rekap di tutup_buku tetap sama dengan transaksi yang tercatat.
+    public function after(): array
+    {
+        return [
+            function (Validator $validator) {
+                if (TutupBuku::whereDate('tanggal', today())->exists()) {
+                    $validator->errors()->add('tanggal', 'Hari ini sudah ditutup buku, transaksi tidak dapat dicatat.');
+                }
+            },
         ];
     }
 }
